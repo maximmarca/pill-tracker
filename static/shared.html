@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PillTracker — Vista compartida</title>
+<style>
+:root{--bg:#0f1117;--bg2:#1a1b23;--bg3:#22232d;--border:#333445;--green:#22c55e;--red:#ef4444;--gold:#f59e0b;--blue:#3b82f6;--text:#f0f0f5;--text2:#9ca3b0;--text3:#6b7280}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
+.container{max-width:600px;margin:0 auto}
+.header{text-align:center;margin-bottom:24px}
+.header h1{font-size:1.3em;margin-bottom:4px}
+.header .sub{color:var(--text2);font-size:.85em}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.card h2{font-size:.9em;margin-bottom:12px;color:var(--text2)}
+.adherence{text-align:center;padding:20px}
+.adherence .pct{font-size:3em;font-weight:700}
+.adherence .label{color:var(--text2);font-size:.85em}
+.med-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.med-row:last-child{border:none}
+.med-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.med-name{font-size:.9em;font-weight:600;flex:1}
+.med-dose{font-size:.8em;color:var(--text2)}
+.take-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.82em}
+.take-status{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7em}
+.take-status.done{background:rgba(34,197,94,.2);color:var(--green)}
+.take-status.missed{background:rgba(239,68,68,.2);color:var(--red)}
+.take-status.skipped{background:rgba(245,158,11,.2);color:var(--gold)}
+.day-header{font-size:.75em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 4px;margin-top:8px;border-top:1px solid var(--border)}
+.loading{text-align:center;padding:40px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>&#128138; PillTracker</h1>
+    <p class="sub">Vista compartida (solo lectura)</p>
+  </div>
+  <div id="content"><div class="loading">Cargando...</div></div>
+</div>
+
+<script>
+async function load() {
+  const parts = window.location.pathname.split('/');
+  const shareToken = parts[parts.length - 1];
+  try {
+    const res = await fetch(`/api/shared/${shareToken}`);
+    if (!res.ok) throw new Error('Token invalido');
+    const data = await res.json();
+    render(data);
+  } catch (err) {
+    document.getElementById('content').innerHTML = `<div class="card" style="text-align:center;color:var(--red)">Link invalido o expirado.</div>`;
+  }
+}
+
+function render(data) {
+  const pctColor = data.adherence_pct >= 80 ? 'var(--green)' : data.adherence_pct >= 50 ? 'var(--gold)' : 'var(--red)';
+
+  let medsHtml = data.medications.map(m => `
+    <div class="med-row">
+      <div class="med-dot" style="background:${m.color}"></div>
+      <div class="med-name">${m.name}</div>
+      <div class="med-dose">${m.dose} — ${m.schedule}</div>
+    </div>
+  `).join('');
+
+  // Group takes by date
+  const byDate = {};
+  data.takes.forEach(t => {
+    if (!byDate[t.scheduled_date]) byDate[t.scheduled_date] = [];
+    byDate[t.scheduled_date].push(t);
+  });
+
+  let takesHtml = '';
+  Object.keys(byDate).sort().reverse().forEach(date => {
+    takesHtml += `<div class="day-header">${date}</div>`;
+    byDate[date].forEach(t => {
+      const cls = t.taken ? 'done' : (t.skipped ? 'skipped' : 'missed');
+      const icon = t.taken ? '&#10003;' : (t.skipped ? '—' : '&#10007;');
+      takesHtml += `
+        <div class="take-row">
+          <div class="take-status ${cls}">${icon}</div>
+          <span style="flex:1">${t.med_name} (${t.dose})</span>
+          <span style="color:var(--text3)">${t.scheduled_time}</span>
+        </div>`;
+    });
+  });
+
+  document.getElementById('content').innerHTML = `
+    <div class="card adherence">
+      <div class="pct" style="color:${pctColor}">${data.adherence_pct}%</div>
+      <div class="label">Adherencia — ${data.display_name}</div>
+      <div style="font-size:.75em;color:var(--text3);margin-top:4px">${data.period}</div>
+    </div>
+    <div class="card">
+      <h2>Medicamentos activos</h2>
+      ${medsHtml || '<p style="color:var(--text3);font-size:.85em">Sin medicamentos</p>'}
+    </div>
+    <div class="card">
+      <h2>Historial (ultima semana)</h2>
+      ${takesHtml || '<p style="color:var(--text3);font-size:.85em">Sin registros</p>'}
+    </div>
+  `;
+}
+
+load();
+</script>
+</body>
+</html>

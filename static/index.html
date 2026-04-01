@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1E88E5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MediControl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1E88E5;
+  --primary-light: #E3F2FD;
+  --primary-dark: #1565C0;
+  --green: #66BB6A;
+  --green-light: #E8F5E9;
+  --orange: #FF7043;
+  --orange-light: #FBE9E7;
+  --red: #EF5350;
+  --red-light: #FFEBEE;
+  --bg: #F5F7FA;
+  --white: #FFFFFF;
+  --gray50: #FAFAFA;
+  --gray100: #F0F2F5;
+  --gray200: #E4E7EB;
+  --gray300: #D1D5DB;
+  --gray400: #9CA3AF;
+  --gray500: #6B7280;
+  --gray600: #4B5563;
+  --gray700: #374151;
+  --gray800: #1F2937;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+  --shadow: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.12);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --nav-height: 64px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family:'Inter',-apple-system,'Segoe UI',sans-serif;
+  background:var(--bg);
+  color:var(--gray800);
+  min-height:100vh;
+  max-width:480px;
+  margin:0 auto;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* ===== UTILS ===== */
+.hidden{display:none!important}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes checkPop{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ===== AUTH ===== */
+.auth-screen {
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:linear-gradient(160deg,var(--primary) 0%,var(--primary-dark) 100%);
+}
+.auth-logo{font-size:3em;margin-bottom:8px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.2))}
+.auth-title{font-size:1.6em;font-weight:800;color:#fff;margin-bottom:4px}
+.auth-sub{color:rgba(255,255,255,.7);font-size:.9em;margin-bottom:28px}
+.auth-card{background:#fff;border-radius:20px;padding:28px;width:100%;box-shadow:var(--shadow-lg)}
+.auth-tabs{display:flex;gap:4px;background:var(--gray100);border-radius:var(--radius-xs);padding:3px;margin-bottom:20px}
+.auth-tab{flex:1;padding:9px;text-align:center;font-size:.82em;font-weight:600;cursor:pointer;border-radius:7px;color:var(--gray500);transition:.2s}
+.auth-tab.active{background:#fff;color:var(--primary);box-shadow:var(--shadow-sm)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.72em;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--gray200);border-radius:var(--radius-xs);font-size:.9em;font-family:inherit;color:var(--gray800);background:var(--gray50);transition:.2s}
+.form-input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px var(--primary-light)}
+.form-input::placeholder{color:var(--gray400)}
+select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.btn{width:100%;padding:13px;border:none;border-radius:var(--radius-xs);font-size:.9em;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(30,136,229,.3)}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-outline{background:transparent;border:1.5px solid var(--gray200);color:var(--gray600)}
+.btn-green{background:var(--green);color:#fff}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.auth-error{color:var(--red);font-size:.82em;text-align:center;margin-top:8px;min-height:20px}
+
+/* ===== APP SHELL ===== */
+.app{display:none;flex-direction:column;min-height:100vh;padding-bottom:var(--nav-height)}
+.app.show{display:flex}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:var(--nav-height);background:#fff;border-top:1px solid var(--gray200);display:flex;z-index:50;box-shadow:0 -2px 10px rgba(0,0,0,.05)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--gray400);transition:.2s;position:relative}
+.nav-item.active{color:var(--primary)}
+.nav-item.active::before{content:'';position:absolute;top:0;width:32px;height:3px;background:var(--primary);border-radius:0 0 3px 3px}
+.nav-icon{font-size:1.3em;line-height:1}
+.nav-label{font-size:.65em;font-weight:600;letter-spacing:.3px}
+
+/* ===== PAGES ===== */
+.page{display:none;padding:0 16px 16px}
+.page.active{display:block}
+
+/* ===== PAGE HEADER ===== */
+.page-header{padding:16px 0 12px;display:flex;align-items:center;justify-content:space-between}
+.greeting{font-size:.85em;color:var(--gray500)}
+.greeting-name{font-size:1.3em;font-weight:700;color:var(--gray800)}
+.header-avatar{width:40px;height:40px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1em;color:var(--primary);font-weight:700;cursor:pointer}
+
+/* ===== PROGRESS CIRCLE ===== */
+.progress-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:20px;margin-bottom:16px;color:#fff;display:flex;align-items:center;gap:20px;box-shadow:0 4px 16px rgba(30,136,229,.25)}
+.progress-ring{position:relative;width:90px;height:90px;flex-shrink:0}
+.progress-ring svg{transform:rotate(-90deg)}
+.progress-ring circle{fill:none;stroke-width:6}
+.progress-ring .ring-bg{stroke:rgba(255,255,255,.2)}
+.progress-ring .ring-fg{stroke:#fff;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.progress-ring .ring-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:800}
+.progress-info h3{font-size:.78em;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.progress-stats{display:flex;gap:16px;margin-top:8px}
+.progress-stat .num{font-size:1.2em;font-weight:700}
+.progress-stat .lbl{font-size:.65em;opacity:.7;text-transform:uppercase}
+
+/* ===== SECTION ===== */
+.section-title{font-size:.78em;font-weight:700;color:var(--gray500);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between}
+
+/* ===== TAKE CARD ===== */
+.take-card{background:#fff;border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);transition:all .2s;position:relative;overflow:hidden}
+.take-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.take-card.pending::before{background:var(--primary)}
+.take-card.done::before{background:var(--green)}
+.take-card.done{opacity:.65}
+.take-card.skipped::before{background:var(--gray300)}
+.take-card.skipped{opacity:.45}
+.take-check{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85em;flex-shrink:0;cursor:pointer;transition:all .2s;border:2px solid var(--gray300)}
+.take-card.pending .take-check{border-color:var(--primary);color:var(--primary)}
+.take-card.pending .take-check:hover{background:var(--primary-light)}
+.take-card.done .take-check{background:var(--green);border-color:var(--green);color:#fff;animation:checkPop .3s ease}
+.take-card.skipped .take-check{background:var(--gray300);border-color:var(--gray300);color:#fff}
+.take-body{flex:1;min-width:0}
+.take-name{font-size:.88em;font-weight:600;color:var(--gray800)}
+.take-dose{font-size:.75em;color:var(--gray500);margin-top:1px}
+.take-time-badge{font-size:.72em;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--primary-light);color:var(--primary)}
+.take-card.done .take-time-badge{background:var(--green-light);color:var(--green)}
+.take-card.skipped .take-time-badge{background:var(--gray100);color:var(--gray400)}
+.take-skip{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--gray200);background:none;color:var(--gray400);cursor:pointer;font-size:.7em;display:flex;align-items:center;justify-content:center;transition:.15s}
+.take-skip:hover{border-color:var(--orange);color:var(--orange)}
+
+/* ===== WEEK SUMMARY ===== */
+.week-bar{background:#fff;border-radius:var(--radius-sm);padding:14px;display:flex;gap:6px;justify-content:space-between;box-shadow:var(--shadow-sm);margin-bottom:16px}
+.week-day{flex:1;text-align:center}
+.week-day .day-label{font-size:.6em;font-weight:600;color:var(--gray400);text-transform:uppercase;margin-bottom:4px}
+.week-day .day-dot{width:28px;height:28px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:.65em;font-weight:700}
+.day-dot.full{background:var(--green);color:#fff}
+.day-dot.partial{background:var(--orange-light);color:var(--orange)}
+.day-dot.missed{background:var(--red-light);color:var(--red)}
+.day-dot.none{background:var(--gray100);color:var(--gray400)}
+.day-dot.today{outline:2px solid var(--primary);outline-offset:2px}
+
+/* ===== MED LIST ===== */
+.med-card{background:#fff;border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm)}
+.med-icon{width:42px;height:42px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:1.2em;flex-shrink:0}
+.med-body{flex:1;min-width:0}
+.med-name{font-size:.88em;font-weight:600}
+.med-detail{font-size:.73em;color:var(--gray500);margin-top:2px}
+.med-badge{font-size:.65em;font-weight:600;padding:3px 8px;border-radius:20px}
+.med-badge.active{background:var(--green-light);color:var(--green)}
+.med-badge.inactive{background:var(--gray100);color:var(--gray400)}
+.med-actions{display:flex;gap:6px}
+.med-action-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--gray200);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75em;color:var(--gray400);transition:.15s}
+.med-action-btn:hover{border-color:var(--primary);color:var(--primary)}
+.med-action-btn.delete:hover{border-color:var(--red);color:var(--red)}
+
+/* ===== STATS ===== */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.stat-box{background:#fff;border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:var(--shadow-sm)}
+.stat-box .val{font-size:1.5em;font-weight:800}
+.stat-box .lbl{font-size:.65em;color:var(--gray500);text-transform:uppercase;font-weight:600;letter-spacing:.3px;margin-top:2px}
+.cal-card{background:#fff;border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow-sm)}
+.cal-card h3{font-size:.82em;font-weight:600;margin-bottom:12px;color:var(--gray600)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-h{font-size:.6em;color:var(--gray400);text-align:center;padding:4px;font-weight:600}
+.cal-d{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.72em;font-weight:600;transition:.15s}
+.cal-d.empty{opacity:0}
+.cal-d.future{color:var(--gray300)}
+.cal-d.p100{background:var(--green-light);color:var(--green)}
+.cal-d.p70{background:#FFF8E1;color:var(--orange)}
+.cal-d.p30{background:var(--orange-light);color:var(--orange)}
+.cal-d.p0{background:var(--red-light);color:var(--red)}
+.cal-d.is-today{outline:2px solid var(--primary);outline-offset:-1px;font-weight:800}
+
+/* ===== SHARE ===== */
+.share-card{background:#fff;border-radius:var(--radius-sm);padding:20px;box-shadow:var(--shadow-sm);text-align:center}
+.share-card p{font-size:.85em;color:var(--gray500);line-height:1.6;margin-bottom:14px}
+.share-url{background:var(--primary-light);border-radius:var(--radius-xs);padding:12px;font-size:.8em;color:var(--primary);word-break:break-all;cursor:pointer;transition:.15s;font-weight:500;margin-bottom:14px}
+.share-url:hover{background:#BBDEFB}
+.share-url.copied{background:var(--green-light);color:var(--green)}
+
+/* ===== PROFILE ===== */
+.profile-card{background:#fff;border-radius:var(--radius-sm);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:12px}
+.profile-card h3{font-size:.85em;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--gray200);display:flex;align-items:center;gap:8px}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:.85em}
+.profile-row .label{color:var(--gray500)}
+.profile-row .value{font-weight:600}
+
+/* ===== FAB ===== */
+.fab{position:fixed;bottom:80px;right:calc(50% - 210px);width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;border:none;box-shadow:0 4px 16px rgba(30,136,229,.35);cursor:pointer;font-size:1.5em;display:flex;align-items:center;justify-content:center;z-index:40;transition:.2s}
+.fab:active{transform:scale(.9)}
+@media(max-width:480px){.fab{right:20px}}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease;box-shadow:var(--shadow-lg)}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--gray300);margin:0 auto 16px}
+.modal h2{font-size:1em;font-weight:700;margin-bottom:16px}
+.modal .form-group{margin-bottom:12px}
+.modal .btn-row{display:flex;gap:8px;margin-top:18px}
+.modal .btn-row .btn{flex:1}
+.color-picker{display:flex;gap:8px;flex-wrap:wrap}
+.color-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:.15s}
+.color-dot:hover{transform:scale(1.1)}
+.color-dot.active{border-color:var(--gray800);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--gray800)}
+
+/* ===== EMPTY ===== */
+.empty-state{text-align:center;padding:40px 20px}
+.empty-state .icon{font-size:2.5em;margin-bottom:10px;opacity:.6}
+.empty-state p{font-size:.88em;color:var(--gray400);line-height:1.5}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gray800);color:#fff;padding:10px 20px;border-radius:30px;font-size:.82em;font-weight:500;z-index:200;animation:fadeIn .2s;box-shadow:var(--shadow-lg);white-space:nowrap}
+
+/* ===== TREATMENT CARDS ===== */
+.treat-card{background:#fff;border-radius:var(--radius-sm);margin-bottom:12px;box-shadow:var(--shadow-sm);overflow:hidden}
+.treat-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--gray100)}
+.treat-header:hover{background:var(--gray50)}
+.treat-icon{width:44px;height:44px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:1.3em;flex-shrink:0}
+.treat-header-info{flex:1;min-width:0}
+.treat-drug{font-size:.9em;font-weight:700}
+.treat-condition{font-size:.73em;color:var(--gray500);margin-top:1px}
+.treat-arrow{color:var(--gray400);font-size:.8em;transition:transform .2s}
+.treat-arrow.open{transform:rotate(90deg)}
+.treat-body{display:none;padding:0 16px 16px}
+.treat-body.open{display:block;animation:fadeIn .25s ease}
+.treat-section{margin-bottom:14px}
+.treat-section-title{display:flex;align-items:center;gap:8px;font-size:.75em;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--primary-light)}
+.treat-section-title .ts-icon{font-size:1.1em}
+.treat-section p{font-size:.82em;color:var(--gray600);line-height:1.65}
+.treat-section.warning p{color:var(--red);background:var(--red-light);padding:10px 12px;border-radius:var(--radius-xs);font-weight:500}
+.treat-section.tip p{color:#2E7D32;background:var(--green-light);padding:10px 12px;border-radius:var(--radius-xs);font-weight:500}
+.treat-no-info{padding:16px;text-align:center;color:var(--gray400);font-size:.82em;font-style:italic}
+.treat-inventory{display:flex;align-items:center;gap:10px;margin-top:8px}
+.treat-inv-input{width:80px;padding:8px;border:1.5px solid var(--gray200);border-radius:var(--radius-xs);font-size:.85em;font-family:inherit;text-align:center;color:var(--gray800)}
+.treat-inv-input:focus{outline:none;border-color:var(--primary)}
+.treat-inv-label{font-size:.8em;color:var(--gray500)}
+.treat-inv-alert{font-size:.75em;color:var(--orange);font-weight:600;margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH ===== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-logo">&#128138;</div>
+  <div class="auth-title">MediControl</div>
+  <p class="auth-sub">Tu medicacion, bajo control</p>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuth('login')">Ingresar</div>
+      <div class="auth-tab" onclick="switchAuth('register')">Crear cuenta</div>
+    </div>
+    <form id="loginForm" onsubmit="doLogin(event)">
+      <div class="form-group"><label>Usuario</label><input class="form-input" type="text" id="loginUser" required autocomplete="username" placeholder="tu usuario"></div>
+      <div class="form-group"><label>Contraseña</label><input class="form-input" type="password" id="loginPass" required autocomplete="current-password" placeholder="contraseña"></div>
+      <button type="submit" class="btn btn-primary">Ingresar</button>
+    </form>
+    <form id="registerForm" class="hidden" onsubmit="doRegister(event)">
+      <div class="form-group"><label>Nombre</label><input class="form-input" type="text" id="regName" required placeholder="Tu nombre"></div>
+      <div class="form-group"><label>Usuario</label><input class="form-input" type="text" id="regUser" required placeholder="elige un usuario" autocomplete="username"></div>
+      <div class="form-group"><label>Contraseña</label><input class="form-input" type="password" id="regPass" required minlength="4" autocomplete="new-password" placeholder="minimo 4 caracteres"></div>
+      <button type="submit" class="btn btn-primary">Crear cuenta</button>
+    </form>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app" id="app">
+
+  <!-- Pages -->
+  <div class="page active" id="page-home"></div>
+  <div class="page" id="page-treatments"></div>
+  <div class="page" id="page-diary"></div>
+  <div class="page" id="page-meds"></div>
+  <div class="page" id="page-profile"></div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openMedModal()" title="Agregar medicamento">+</button>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-page="home" onclick="showPage('home')">
+      <div class="nav-icon">&#127968;</div>
+      <div class="nav-label">Inicio</div>
+    </div>
+    <div class="nav-item" data-page="treatments" onclick="showPage('treatments')">
+      <div class="nav-icon">&#128218;</div>
+      <div class="nav-label">Tratamientos</div>
+    </div>
+    <div class="nav-item" data-page="diary" onclick="showPage('diary')">
+      <div class="nav-icon">&#128197;</div>
+      <div class="nav-label">Diario</div>
+    </div>
+    <div class="nav-item" data-page="meds" onclick="showPage('meds')">
+      <div class="nav-icon">&#128138;</div>
+      <div class="nav-label">Medicamentos</div>
+    </div>
+    <div class="nav-item" data-page="profile" onclick="showPage('profile')">
+      <div class="nav-icon">&#128100;</div>
+      <div class="nav-label">Perfil</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: ADD/EDIT MED ===== -->
+<div class="modal-overlay" id="medModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="medModalTitle">Nuevo medicamento</h2>
+    <form onsubmit="saveMed(event)">
+      <div class="form-group"><label>Nombre</label><input class="form-input" type="text" id="medName" required placeholder="ej: Ibuprofeno"></div>
+      <div class="form-group"><label>Dosis</label><input class="form-input" type="text" id="medDose" required placeholder="ej: 400mg"></div>
+      <div class="form-group"><label>Horarios (separar con coma)</label><input class="form-input" type="text" id="medSchedule" required placeholder="ej: 08:00, 20:00" value="08:00"></div>
+      <div class="form-group"><label>Frecuencia</label>
+        <select class="form-input" id="medFreq">
+          <option value="daily">Diario</option>
+          <option value="weekly">Semanal</option>
+          <option value="as_needed">Segun necesidad</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Color</label><div class="color-picker" id="colorPicker"></div></div>
+      <div class="form-group"><label>Notas (opcional)</label><input class="form-input" type="text" id="medNotes" placeholder="ej: tomar con comida"></div>
+      <input type="hidden" id="medEditId">
+      <div class="btn-row">
+        <button type="button" class="btn btn-outline" onclick="closeMedModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let token = localStorage.getItem('mc_token');
+let displayName = localStorage.getItem('mc_name') || '';
+let currentDate = new Date();
+const COLORS = ['#1E88E5','#66BB6A','#FF7043','#AB47BC','#26C6DA','#FFA726','#EF5350','#78909C'];
+let selectedColor = COLORS[0];
+const DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// ===== API =====
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
+  if (res.status === 401) { logout(); throw new Error('Sesion expirada'); }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Error');
+  return data;
+}
+
+// ===== AUTH =====
+function switchAuth(mode) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', mode === 'login' ? i === 0 : i === 1));
+  document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
+  document.getElementById('authError').textContent = '';
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  try {
+    const form = new URLSearchParams();
+    form.append('username', document.getElementById('loginUser').value);
+    form.append('password', document.getElementById('loginPass').value);
+    const res = await fetch('/api/auth/login', { method: 'POST', body: form });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.detail);
+    token = json.access_token; displayName = json.display_name;
+    localStorage.setItem('mc_token', token); localStorage.setItem('mc_name', displayName);
+    showApp();
+  } catch (err) { document.getElementById('authError').textContent = err.message; }
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  try {
+    const data = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({
+      username: document.getElementById('regUser').value,
+      display_name: document.getElementById('regName').value,
+      password: document.getElementById('regPass').value
+    })});
+    token = data.token; displayName = data.display_name;
+    localStorage.setItem('mc_token', token); localStorage.setItem('mc_name', displayName);
+    showApp();
+  } catch (err) { document.getElementById('authError').textContent = err.message; }
+}
+
+function logout() {
+  token = null; localStorage.removeItem('mc_token'); localStorage.removeItem('mc_name');
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('app').classList.remove('show');
+}
+
+// ===== APP =====
+function showApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  goToday();
+  showPage('home');
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+  if (id === 'home') loadHome();
+  if (id === 'treatments') loadTreatments();
+  if (id === 'diary') loadDiary();
+  if (id === 'meds') loadMeds();
+  if (id === 'profile') loadProfile();
+}
+
+// ===== HELPERS =====
+function fmtDate(d) { return d.toISOString().split('T')[0]; }
+function fmtChips(n) { return n.toLocaleString(); }
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
+}
+
+// ===== HOME PAGE =====
+function goToday() { currentDate = new Date(); }
+
+async function loadHome() {
+  const page = document.getElementById('page-home');
+  const dateStr = fmtDate(currentDate);
+  const today = fmtDate(new Date());
+  const isToday = dateStr === today;
+
+  let takes = [];
+  try { takes = await api(`/api/takes/${dateStr}`); } catch(e) {}
+
+  const total = takes.length;
+  const done = takes.filter(t => t.taken).length;
+  const skipped = takes.filter(t => t.skipped).length;
+  const pending = total - done - skipped;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const circumference = 2 * Math.PI * 38;
+  const offset = circumference - (pct / 100) * circumference;
+
+  // Week data
+  let weekHtml = '';
+  const todayDate = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(todayDate); d.setDate(d.getDate() - i);
+    const ds = fmtDate(d);
+    const isT = ds === today;
+    const dayName = DAYS[d.getDay()];
+    let cls = 'none';
+    try {
+      const dt = await api(`/api/takes/${ds}`);
+      if (dt.length > 0) {
+        const dtDone = dt.filter(t => t.taken).length;
+        const dtPct = Math.round(dtDone / dt.length * 100);
+        if (dtPct === 100) cls = 'full';
+        else if (dtPct >= 50) cls = 'partial';
+        else if (dtPct > 0) cls = 'missed';
+        else cls = 'none';
+      }
+    } catch(e) {}
+    weekHtml += `<div class="week-day"><div class="day-label">${dayName}</div><div class="day-dot ${cls} ${isT ? 'today' : ''}">${d.getDate()}</div></div>`;
+  }
+
+  // Date nav
+  const dayLabel = isToday ? 'Hoy' : `${DAYS[currentDate.getDay()]} ${currentDate.getDate()}`;
+
+  // Takes list
+  let takesHtml = '';
+  if (takes.length === 0) {
+    takesHtml = '<div class="empty-state"><div class="icon">&#128138;</div><p>No hay medicamentos para este dia.<br>Agrega uno con el boton +</p></div>';
+  } else {
+    takesHtml = takes.map(t => {
+      const status = t.taken ? 'done' : (t.skipped ? 'skipped' : 'pending');
+      const checkIcon = t.taken ? '&#10003;' : (t.skipped ? '&#8212;' : '');
+      return `<div class="take-card ${status} fade-in">
+        <div class="take-check" onclick="toggleTake('${t.id}',${!t.taken},false)">${checkIcon}</div>
+        <div class="take-body">
+          <div class="take-name">${t.med_name}</div>
+          <div class="take-dose">${t.dose}${t.notes ? ' &middot; ' + t.notes : ''}</div>
+        </div>
+        <div class="take-time-badge">${t.scheduled_time}</div>
+        ${status === 'pending' ? `<button class="take-skip" onclick="toggleTake('${t.id}',false,true)" title="Saltar">&#10007;</button>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  const hour = new Date().getHours();
+  const greetWord = hour < 12 ? 'Buenos dias' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
+
+  page.innerHTML = `
+    <div class="page-header">
+      <div>
+        <div class="greeting">${greetWord} &#128075;</div>
+        <div class="greeting-name">${displayName}</div>
+      </div>
+      <div class="header-avatar" onclick="showPage('profile')">${displayName.charAt(0).toUpperCase()}</div>
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-ring">
+        <svg width="90" height="90">
+          <circle class="ring-bg" cx="45" cy="45" r="38"/>
+          <circle class="ring-fg" cx="45" cy="45" r="38" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+        </svg>
+        <div class="ring-text">${pct}%</div>
+      </div>
+      <div class="progress-info">
+        <h3>Adherencia ${isToday ? 'de hoy' : dayLabel}</h3>
+        <div style="font-size:1.1em;font-weight:700">${done} de ${total} tomados</div>
+        <div class="progress-stats">
+          <div class="progress-stat"><div class="num">${pending}</div><div class="lbl">Pendientes</div></div>
+          <div class="progress-stat"><div class="num">${skipped}</div><div class="lbl">Saltados</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Semana</div>
+    <div class="week-bar">${weekHtml}</div>
+
+    <div class="section-title" style="display:flex;align-items:center;gap:8px">
+      <span>Tomas del dia</span>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+        <button onclick="changeDate(-1)" style="background:none;border:1px solid var(--gray200);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--gray500);font-size:.8em">&#9664;</button>
+        <span style="font-size:.78em;color:var(--gray600);font-weight:600;min-width:40px;text-align:center">${dayLabel}</span>
+        <button onclick="changeDate(1)" style="background:none;border:1px solid var(--gray200);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--gray500);font-size:.8em">&#9654;</button>
+      </div>
+    </div>
+    ${takesHtml}
+  `;
+}
+
+function changeDate(dir) { currentDate.setDate(currentDate.getDate() + dir); loadHome(); }
+
+async function toggleTake(id, taken, skipped) {
+  await api(`/api/takes/${id}`, { method: 'PUT', body: JSON.stringify({ taken, skipped }) });
+  if (taken) toast('&#10003; Medicamento tomado');
+  if (skipped) toast('Toma saltada');
+  loadHome();
+}
+
+// ===== DIARY PAGE =====
+async function loadDiary() {
+  const page = document.getElementById('page-diary');
+  let stats;
+  try { stats = await api('/api/stats?days=30'); } catch(e) { stats = { overall_pct: 0, total_taken: 0, total_takes: 0, daily: [] }; }
+
+  const pctColor = stats.overall_pct >= 80 ? 'var(--green)' : stats.overall_pct >= 50 ? 'var(--orange)' : 'var(--red)';
+
+  // Calendar
+  const today = new Date();
+  const start = new Date(today); start.setDate(start.getDate() - 29);
+  const headers = ['L','M','X','J','V','S','D'];
+  let calHtml = headers.map(h => `<div class="cal-h">${h}</div>`).join('');
+  let dow = (start.getDay() + 6) % 7;
+  for (let i = 0; i < dow; i++) calHtml += '<div class="cal-d empty"></div>';
+  const dailyMap = {}; stats.daily.forEach(d => dailyMap[d.date] = d.pct);
+
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    const ds = fmtDate(d);
+    const pct = dailyMap[ds];
+    const isT = ds === fmtDate(today);
+    let cls = 'future';
+    if (pct !== undefined) { cls = pct === 100 ? 'p100' : pct >= 70 ? 'p70' : pct >= 30 ? 'p30' : 'p0'; }
+    calHtml += `<div class="cal-d ${cls} ${isT ? 'is-today' : ''}" title="${ds}: ${pct !== undefined ? pct + '%' : '-'}">${d.getDate()}</div>`;
+  }
+
+  page.innerHTML = `
+    <div class="page-header"><div><div class="greeting-name">Diario</div><div class="greeting">Ultimos 30 dias</div></div></div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="val" style="color:${pctColor}">${stats.overall_pct}%</div><div class="lbl">Adherencia</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--green)">${stats.total_taken}</div><div class="lbl">Tomadas</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--gray400)">${stats.total_takes - stats.total_taken}</div><div class="lbl">Pendientes</div></div>
+    </div>
+    <div class="cal-card"><h3>Calendario de adherencia</h3><div class="cal-grid">${calHtml}</div></div>
+  `;
+}
+
+// ===== MEDS PAGE =====
+async function loadMeds() {
+  const page = document.getElementById('page-meds');
+  let meds = [];
+  try { meds = await api('/api/medications'); } catch(e) {}
+
+  const activeMeds = meds.filter(m => m.active);
+  const inactiveMeds = meds.filter(m => !m.active);
+
+  let html = `<div class="page-header"><div><div class="greeting-name">Medicamentos</div><div class="greeting">${activeMeds.length} activos</div></div></div>`;
+
+  if (meds.length === 0) {
+    html += '<div class="empty-state"><div class="icon">&#128138;</div><p>No hay medicamentos.<br>Toca el boton + para agregar uno.</p></div>';
+  } else {
+    if (activeMeds.length) {
+      html += '<div class="section-title">Activos</div>';
+      html += activeMeds.map(m => medCardHtml(m)).join('');
+    }
+    if (inactiveMeds.length) {
+      html += '<div class="section-title">Inactivos</div>';
+      html += inactiveMeds.map(m => medCardHtml(m)).join('');
+    }
+  }
+  page.innerHTML = html;
+}
+
+function medCardHtml(m) {
+  const esc = s => (s||'').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  return `<div class="med-card fade-in">
+    <div class="med-icon" style="background:${m.color}15;color:${m.color}">&#128138;</div>
+    <div class="med-body">
+      <div class="med-name">${m.name}</div>
+      <div class="med-detail">${m.dose} &middot; ${m.schedule} &middot; ${m.frequency}${m.notes ? ' &middot; ' + m.notes : ''}</div>
+    </div>
+    <div class="med-actions">
+      <button class="med-action-btn" onclick="editMed('${m.id}','${esc(m.name)}','${esc(m.dose)}','${esc(m.schedule)}','${m.frequency}','${m.color}','${esc(m.notes)}')">&#9998;</button>
+      <button class="med-action-btn delete" onclick="deleteMed('${m.id}')">&#128465;</button>
+    </div>
+  </div>`;
+}
+
+// ===== PROFILE PAGE =====
+async function loadProfile() {
+  const page = document.getElementById('page-profile');
+  let shareToken = '';
+  try { const s = await api('/api/share/token'); shareToken = s.share_token; } catch(e) {}
+  const shareUrl = `${window.location.origin}/shared/${shareToken}`;
+
+  page.innerHTML = `
+    <div class="page-header"><div><div class="greeting-name">Perfil</div></div></div>
+    <div class="profile-card">
+      <h3>&#128100; Datos</h3>
+      <div class="profile-row"><span class="label">Nombre</span><span class="value">${displayName}</span></div>
+    </div>
+    <div class="profile-card">
+      <h3>&#128279; Compartir con medico</h3>
+      <p style="font-size:.82em;color:var(--gray500);margin-bottom:12px">Este link permite ver tu adherencia de la ultima semana (solo lectura).</p>
+      <div class="share-url" id="shareLink" onclick="copyShare('${shareUrl}')">${shareUrl}</div>
+      <button class="btn btn-primary" onclick="copyShare('${shareUrl}')" style="margin-top:8px">Copiar link</button>
+    </div>
+    <div class="profile-card">
+      <h3>&#9881; Opciones</h3>
+      <button class="btn btn-outline" onclick="logout()" style="margin-top:4px;color:var(--red);border-color:var(--red)">Cerrar sesion</button>
+    </div>
+  `;
+}
+
+function copyShare(url) {
+  navigator.clipboard.writeText(url);
+  const el = document.getElementById('shareLink');
+  if (el) { el.textContent = '¡Link copiado!'; el.classList.add('copied'); setTimeout(() => { el.textContent = url; el.classList.remove('copied'); }, 1500); }
+  toast('Link copiado al portapapeles');
+}
+
+// ===== MED MODAL =====
+function openMedModal(editId) {
+  document.getElementById('medModal').classList.add('show');
+  document.getElementById('medModalTitle').textContent = editId ? 'Editar medicamento' : 'Nuevo medicamento';
+  if (!editId) {
+    ['medName','medDose','medNotes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('medSchedule').value = '08:00';
+    document.getElementById('medFreq').value = 'daily';
+    document.getElementById('medEditId').value = '';
+    selectedColor = COLORS[0];
+  }
+  renderColors();
+}
+
+function editMed(id, name, dose, schedule, freq, color, notes) {
+  document.getElementById('medName').value = name;
+  document.getElementById('medDose').value = dose;
+  document.getElementById('medSchedule').value = schedule;
+  document.getElementById('medFreq').value = freq;
+  document.getElementById('medNotes').value = notes;
+  document.getElementById('medEditId').value = id;
+  selectedColor = color;
+  openMedModal(id);
+}
+
+function closeMedModal() { document.getElementById('medModal').classList.remove('show'); }
+
+function renderColors() {
+  document.getElementById('colorPicker').innerHTML = COLORS.map(c =>
+    `<div class="color-dot ${c === selectedColor ? 'active' : ''}" style="background:${c}" onclick="selectedColor='${c}';renderColors()"></div>`
+  ).join('');
+}
+
+async function saveMed(e) {
+  e.preventDefault();
+  const editId = document.getElementById('medEditId').value;
+  const times = document.getElementById('medSchedule').value.split(',').map(t => t.trim());
+  const body = {
+    name: document.getElementById('medName').value,
+    dose: document.getElementById('medDose').value,
+    frequency: document.getElementById('medFreq').value,
+    times_per_day: times.length,
+    schedule: times.join(', '),
+    color: selectedColor,
+    notes: document.getElementById('medNotes').value || null
+  };
+  if (editId) await api(`/api/medications/${editId}`, { method: 'PUT', body: JSON.stringify(body) });
+  else await api('/api/medications', { method: 'POST', body: JSON.stringify(body) });
+  closeMedModal();
+  toast(editId ? 'Medicamento actualizado' : 'Medicamento agregado');
+  showPage('meds');
+}
+
+async function deleteMed(id) {
+  if (!confirm('Eliminar este medicamento?')) return;
+  await api(`/api/medications/${id}`, { method: 'DELETE' });
+  toast('Medicamento eliminado');
+  loadMeds();
+}
+
+// ===== TREATMENTS PAGE =====
+async function loadTreatments() {
+  const page = document.getElementById('page-treatments');
+  let treatments = [];
+  try { treatments = await api('/api/treatments'); } catch(e) {}
+
+  let html = `<div class="page-header"><div><div class="greeting-name">Tratamientos</div><div class="greeting">Informacion medica de tus medicamentos</div></div></div>`;
+
+  if (treatments.length === 0) {
+    html += '<div class="empty-state"><div class="icon">&#128218;</div><p>No hay medicamentos activos.<br>Agrega medicamentos para ver la informacion de tratamiento.</p></div>';
+  } else {
+    treatments.forEach((t, idx) => {
+      const info = t.treatment_info;
+      const hasInfo = !!info;
+
+      html += `<div class="treat-card fade-in">
+        <div class="treat-header" onclick="toggleTreatment(${idx})">
+          <div class="treat-icon" style="background:${t.color}15;color:${t.color}">&#128138;</div>
+          <div class="treat-header-info">
+            <div class="treat-drug">${t.name} — ${t.dose}</div>
+            <div class="treat-condition">${hasInfo ? info.condition : 'Sin informacion disponible'}</div>
+          </div>
+          <div class="treat-arrow" id="treat-arrow-${idx}">&#9654;</div>
+        </div>
+        <div class="treat-body" id="treat-body-${idx}">`;
+
+      if (!hasInfo) {
+        html += `<div class="treat-no-info">No hay informacion medica cargada para este medicamento. Consulta con tu medico o farmaceutico.</div>`;
+      } else {
+        // Para que sirve
+        html += `<div class="treat-section">
+          <div class="treat-section-title"><span class="ts-icon">&#127919;</span> Para que sirve</div>
+          <p>${info.purpose}</p>
+        </div>`;
+
+        // Que ocurre si no lo tomo
+        html += `<div class="treat-section warning">
+          <div class="treat-section-title"><span class="ts-icon">&#9888;</span> Que ocurre si no lo tomo</div>
+          <p>${info.if_not_taken}</p>
+        </div>`;
+
+        // Como se administra
+        html += `<div class="treat-section">
+          <div class="treat-section-title"><span class="ts-icon">&#128203;</span> Como se administra</div>
+          <p>${info.how_to_take}</p>
+        </div>`;
+
+        // Efectos secundarios
+        html += `<div class="treat-section">
+          <div class="treat-section-title"><span class="ts-icon">&#128161;</span> Efectos secundarios</div>
+          <p>${info.side_effects}</p>
+        </div>`;
+
+        // Otras formas farmaceuticas
+        html += `<div class="treat-section">
+          <div class="treat-section-title"><span class="ts-icon">&#128137;</span> Otras formas farmaceuticas</div>
+          <p>${info.other_forms}</p>
+        </div>`;
+
+        // Que hacer si un dia no lo tomo
+        html += `<div class="treat-section tip">
+          <div class="treat-section-title"><span class="ts-icon">&#128161;</span> Que hacer si olvide una dosis</div>
+          <p>${info.missed_dose}</p>
+        </div>`;
+
+        // Inventario
+        const invKey = 'inv_' + t.id;
+        const invVal = localStorage.getItem(invKey) || '';
+        html += `<div class="treat-section">
+          <div class="treat-section-title"><span class="ts-icon">&#128230;</span> Inventario</div>
+          <div class="treat-inventory">
+            <input type="number" class="treat-inv-input" value="${invVal}" min="0" placeholder="0" onchange="saveInventory('${t.id}', this.value)">
+            <span class="treat-inv-label">${info.inventory_unit} restantes</span>
+          </div>
+          ${invVal && parseInt(invVal) <= 5 ? '<div class="treat-inv-alert">&#9888; Stock bajo — reponer pronto</div>' : ''}
+          ${invVal && parseInt(invVal) === 0 ? '<div class="treat-inv-alert" style="color:var(--red)">&#10060; Sin stock — reponer urgente</div>' : ''}
+        </div>`;
+      }
+
+      html += `</div></div>`;
+    });
+  }
+
+  page.innerHTML = html;
+}
+
+function toggleTreatment(idx) {
+  const body = document.getElementById('treat-body-' + idx);
+  const arrow = document.getElementById('treat-arrow-' + idx);
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    arrow.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    arrow.classList.add('open');
+  }
+}
+
+function saveInventory(medId, val) {
+  localStorage.setItem('inv_' + medId, val);
+  if (parseInt(val) <= 5 && parseInt(val) >= 0) {
+    toast('&#9888; Stock bajo — recordar reponer');
+  }
+  loadTreatments();
+}
+
+// Close modal on overlay click
+document.getElementById('medModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeMedModal(); });
+
+// ===== INIT =====
+if (token) showApp();
+</script>
+</body>
+</html>
