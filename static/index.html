@@ -190,10 +190,10 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 .cal-d{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.72em;font-weight:600;transition:.15s}
 .cal-d.empty{opacity:0}
 .cal-d.future{color:var(--gray300)}
-.cal-d.p100{background:var(--green-light);color:var(--green)}
-.cal-d.p70{background:#FFF8E1;color:var(--orange)}
-.cal-d.p30{background:var(--orange-light);color:var(--orange)}
-.cal-d.p0{background:var(--red-light);color:var(--red)}
+.cal-d.p100{background:#C8E6C9;color:#2E7D32}
+.cal-d.p70{background:#FFF9C4;color:#F57F17}
+.cal-d.p30{background:#FFCCBC;color:#D84315}
+.cal-d.p0{background:#FFCDD2;color:#C62828}
 .cal-d.is-today{outline:2px solid var(--primary);outline-offset:-1px;font-weight:800}
 
 /* ===== SHARE ===== */
@@ -443,8 +443,10 @@ function showPage(id) {
 function fmtDate(d) { return d.toISOString().split('T')[0]; }
 function fmtChips(n) { return n.toLocaleString(); }
 function toast(msg) {
-  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
+  document.querySelectorAll('.toast').forEach(x => x.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { if (t.parentNode) t.remove(); }, 2200);
 }
 
 // ===== HOME PAGE =====
@@ -550,7 +552,7 @@ async function loadHome() {
       <span>Tomas del dia</span>
       <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
         <button onclick="changeDate(-1)" style="background:none;border:1px solid var(--gray200);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--gray500);font-size:.8em">&#9664;</button>
-        <span style="font-size:.78em;color:var(--gray600);font-weight:600;min-width:40px;text-align:center">${dayLabel}</span>
+        <span onclick="goToday();loadHome()" style="font-size:.78em;color:var(--primary);font-weight:600;min-width:40px;text-align:center;cursor:pointer">${dayLabel}</span>
         <button onclick="changeDate(1)" style="background:none;border:1px solid var(--gray200);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--gray500);font-size:.8em">&#9654;</button>
       </div>
     </div>
@@ -562,9 +564,9 @@ function changeDate(dir) { currentDate.setDate(currentDate.getDate() + dir); loa
 
 async function toggleTake(id, taken, skipped) {
   await api(`/api/takes/${id}`, { method: 'PUT', body: JSON.stringify({ taken, skipped }) });
+  await loadHome();
   if (taken) toast('&#10003; Medicamento tomado');
   if (skipped) toast('Toma saltada');
-  loadHome();
 }
 
 // ===== DIARY PAGE =====
