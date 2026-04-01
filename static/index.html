@@ -413,14 +413,439 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 </div>
 
 <script>
+// ===== i18n — TRANSLATIONS =====
+const LANGS = {
+  'es-LA': {
+    _name: 'Español (Latino)',
+    _flag: '&#127462;&#127479;',
+    // Auth
+    app_name: 'MediControl', app_slogan: 'Tu medicacion, bajo control',
+    login: 'Ingresar', register: 'Crear cuenta', username: 'Usuario', password: 'Contraseña',
+    name: 'Nombre', your_name: 'Tu nombre', pick_user: 'elige un usuario', min_chars: 'minimo 4 caracteres',
+    invalid_creds: 'Credenciales invalidas', user_exists: 'Usuario ya existe', session_expired: 'Sesion expirada',
+    // Nav
+    nav_home: 'Inicio', nav_health: 'Salud', nav_assistant: 'Asistente', nav_treatment: 'Tratamiento', nav_profile: 'Perfil',
+    // Greetings
+    good_morning: 'Buenos dias', good_afternoon: 'Buenas tardes', good_evening: 'Buenas noches',
+    // Home
+    adherence_today: 'Adherencia de hoy', taken_of: 'tomados', of: 'de',
+    pending: 'Pendientes', skipped: 'Saltados', week: 'Semana', today_takes: 'Tomas del dia',
+    today: 'Hoy', no_meds_today: 'No hay medicamentos para este dia.', add_with_plus: 'Agrega uno con el boton +',
+    med_taken: '&#10003; Medicamento tomado', take_skipped: 'Toma saltada',
+    understand_health: 'ENTIENDE TU SALUD', disease_info: 'Informacion de enfermedades',
+    assistant_label: 'ASISTENTE', quick_consult: 'Consultas rapidas',
+    // Diseases
+    your_health: 'Tu salud', understand_diseases: 'Entiende tus enfermedades',
+    no_diseases: 'No hay enfermedades asociadas a tus medicamentos.',
+    tap_to_see: 'Toca para ver informacion', body_parts: 'A que partes del cuerpo afecta',
+    risk_factors: 'Factores de riesgo', lifestyle_tips: 'Consejos de estilo de vida',
+    // Assistant
+    assistant_title: 'Asistente', health_med_info: 'Informacion sobre tu salud y medicacion',
+    assistant_hello: 'Hola! Soy tu asistente de salud de MediControl. Estoy aqui para ayudarte con informacion sobre tu tratamiento y tus enfermedades. ¿En que puedo ayudarte hoy?',
+    assistant_disclaimer: 'Este asistente no sustituye la consulta medica',
+    write_query: 'Escribe tu consulta...',
+    q_diseases: 'Mis enfermedades', q_how_works: '¿Como actua mi medicamento?',
+    q_if_not_taken: '¿Que pasa si no lo tomo?', q_missed: 'Olvide una dosis',
+    q_side_effects: 'Efectos secundarios', q_other_forms: 'Formas farmaceuticas',
+    no_meds_loaded: 'No tengo medicamentos cargados para responder. Agrega medicamentos primero.',
+    no_diseases_found: 'No encontre enfermedades asociadas a tus medicamentos.',
+    visit_health_tab: 'Para mas detalle, visita la pestaña Salud.',
+    your_conditions: 'Tus condiciones de salud:',
+    no_info_available: 'No tengo esa informacion para tus medicamentos actuales.',
+    cant_answer: 'No estoy seguro de como responder a eso. Puedo ayudarte con informacion sobre tus medicamentos y enfermedades. Proba con alguna de estas opciones:',
+    // Treatments
+    treatments_title: 'Tratamientos', med_info_subtitle: 'Informacion medica de tus medicamentos',
+    no_active_meds: 'No hay medicamentos activos.', add_meds_to_see: 'Agrega medicamentos para ver la informacion de tratamiento.',
+    no_med_info: 'No hay informacion medica cargada para este medicamento. Consulta con tu medico o farmaceutico.',
+    purpose: 'Para que sirve', if_not_taken: 'Que ocurre si no lo tomo',
+    how_to_take: 'Como se administra', side_effects: 'Efectos secundarios',
+    other_forms: 'Otras formas farmaceuticas', missed_dose: 'Que hacer si olvide una dosis',
+    inventory: 'Inventario', remaining: 'restantes', low_stock: 'Stock bajo — reponer pronto',
+    no_stock: 'Sin stock — reponer urgente',
+    // Diary
+    diary: 'Diario', last_30_days: 'Ultimos 30 dias', adherence: 'Adherencia',
+    taken_label: 'Tomadas', pending_label: 'Pendientes', adherence_calendar: 'Calendario de adherencia',
+    // Meds
+    my_meds: 'Medicamentos', active_count: 'activos', active: 'Activo', inactive: 'Inactivo',
+    no_meds: 'No hay medicamentos.', tap_plus: 'Toca el boton + para agregar uno.',
+    section_active: 'Activos', section_inactive: 'Inactivos',
+    // Med modal
+    new_med: 'Nuevo medicamento', edit_med: 'Editar medicamento',
+    med_name: 'Nombre', dose: 'Dosis', schedules: 'Horarios (separar con coma)',
+    frequency: 'Frecuencia', color: 'Color', notes_opt: 'Notas (opcional)',
+    freq_daily: 'Diario', freq_weekly: 'Semanal', freq_as_needed: 'Segun necesidad',
+    cancel: 'Cancelar', save: 'Guardar', delete_med: 'Eliminar este medicamento?',
+    med_created: 'Medicamento agregado', med_updated: 'Medicamento actualizado', med_deleted: 'Medicamento eliminado',
+    // Profile
+    profile: 'Perfil', data: 'Datos', share_with_doctor: 'Compartir con medico',
+    share_desc: 'Este link permite ver tu adherencia de la ultima semana (solo lectura).',
+    copy_link: 'Copiar link', link_copied: '¡Link copiado!', copied_clipboard: 'Link copiado al portapapeles',
+    link_warning: 'El link no requiere contraseña. Quien lo tenga puede ver tu medicacion.',
+    quick_access: 'Accesos rapidos', adherence_diary: 'Diario de adherencia', manage_meds: 'Gestionar medicamentos',
+    options: 'Opciones', logout: 'Cerrar sesion', language: 'Idioma',
+    // Disclaimer
+    disclaimer_title: 'Aviso importante',
+    disclaimer_text: '<strong>MediControl no sustituye la consulta medica ni modifica tratamientos.</strong><br><br>La informacion proporcionada es educativa y de acompañamiento. Ante cualquier duda sobre tu medicacion o salud, consulta siempre con tu medico o farmaceutico.<br><br>Esta aplicacion te ayuda a llevar un seguimiento de tus tomas, pero las decisiones sobre tu tratamiento deben ser tomadas por profesionales de la salud.',
+    disclaimer_accept: 'Acepto que mis datos se usen para seguimiento terapeutico',
+    disclaimer_start: 'Comenzar',
+    // Days/Months
+    days: ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'],
+    months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+  },
+  'es-ES': {
+    _name: 'Español (España)', _flag: '&#127466;&#127480;',
+    app_name:'MediControl', app_slogan:'Tu medicación, bajo control',
+    login:'Iniciar sesión', register:'Crear cuenta', username:'Usuario', password:'Contraseña',
+    name:'Nombre', your_name:'Tu nombre', pick_user:'elige un usuario', min_chars:'mínimo 4 caracteres',
+    invalid_creds:'Credenciales inválidas', user_exists:'El usuario ya existe', session_expired:'Sesión expirada',
+    nav_home:'Inicio', nav_health:'Salud', nav_assistant:'Asistente', nav_treatment:'Tratamiento', nav_profile:'Perfil',
+    good_morning:'Buenos días', good_afternoon:'Buenas tardes', good_evening:'Buenas noches',
+    adherence_today:'Adherencia de hoy', taken_of:'tomados', of:'de',
+    pending:'Pendientes', skipped:'Omitidos', week:'Semana', today_takes:'Tomas del día',
+    today:'Hoy', no_meds_today:'No hay medicamentos para este día.', add_with_plus:'Añade uno con el botón +',
+    med_taken:'&#10003; Medicamento tomado', take_skipped:'Toma omitida',
+    understand_health:'ENTIENDE TU SALUD', disease_info:'Información de enfermedades',
+    assistant_label:'ASISTENTE', quick_consult:'Consultas rápidas',
+    your_health:'Tu salud', understand_diseases:'Entiende tus enfermedades',
+    no_diseases:'No hay enfermedades asociadas a tus medicamentos.',
+    tap_to_see:'Pulsa para ver información', body_parts:'¿A qué partes del cuerpo afecta?',
+    risk_factors:'Factores de riesgo', lifestyle_tips:'Consejos de estilo de vida',
+    assistant_title:'Asistente', health_med_info:'Información sobre tu salud y medicación',
+    assistant_hello:'¡Hola! Soy tu asistente de salud de MediControl. Estoy aquí para ayudarte con información sobre tu tratamiento y tus enfermedades. ¿En qué puedo ayudarte hoy?',
+    assistant_disclaimer:'Este asistente no sustituye la consulta médica',
+    write_query:'Escribe tu consulta...',
+    q_diseases:'Mis enfermedades', q_how_works:'¿Cómo actúa mi medicamento?',
+    q_if_not_taken:'¿Qué pasa si no lo tomo?', q_missed:'He olvidado una dosis',
+    q_side_effects:'Efectos secundarios', q_other_forms:'Formas farmacéuticas',
+    no_meds_loaded:'No tengo medicamentos cargados para responder. Añade medicamentos primero.',
+    no_diseases_found:'No he encontrado enfermedades asociadas a tus medicamentos.',
+    visit_health_tab:'Para más detalle, visita la pestaña Salud.',
+    your_conditions:'Tus condiciones de salud:',
+    no_info_available:'No tengo esa información para tus medicamentos actuales.',
+    cant_answer:'No estoy seguro de cómo responder a eso. Puedo ayudarte con información sobre tus medicamentos y enfermedades. Prueba con alguna de estas opciones:',
+    treatments_title:'Tratamientos', med_info_subtitle:'Información médica de tus medicamentos',
+    no_active_meds:'No hay medicamentos activos.', add_meds_to_see:'Añade medicamentos para ver la información de tratamiento.',
+    no_med_info:'No hay información médica cargada para este medicamento. Consulta con tu médico o farmacéutico.',
+    purpose:'Para qué sirve', if_not_taken:'Qué ocurre si no lo tomo',
+    how_to_take:'Cómo se administra', side_effects:'Efectos secundarios',
+    other_forms:'Otras formas farmacéuticas', missed_dose:'Qué hacer si he olvidado una dosis',
+    inventory:'Inventario', remaining:'restantes', low_stock:'Stock bajo — reponer pronto',
+    no_stock:'Sin stock — reponer urgente',
+    diary:'Diario', last_30_days:'Últimos 30 días', adherence:'Adherencia',
+    taken_label:'Tomadas', pending_label:'Pendientes', adherence_calendar:'Calendario de adherencia',
+    my_meds:'Medicamentos', active_count:'activos', active:'Activo', inactive:'Inactivo',
+    no_meds:'No hay medicamentos.', tap_plus:'Pulsa el botón + para añadir uno.',
+    section_active:'Activos', section_inactive:'Inactivos',
+    new_med:'Nuevo medicamento', edit_med:'Editar medicamento',
+    med_name:'Nombre', dose:'Dosis', schedules:'Horarios (separar con coma)',
+    frequency:'Frecuencia', color:'Color', notes_opt:'Notas (opcional)',
+    freq_daily:'Diario', freq_weekly:'Semanal', freq_as_needed:'Según necesidad',
+    cancel:'Cancelar', save:'Guardar', delete_med:'¿Eliminar este medicamento?',
+    med_created:'Medicamento añadido', med_updated:'Medicamento actualizado', med_deleted:'Medicamento eliminado',
+    profile:'Perfil', data:'Datos', share_with_doctor:'Compartir con médico',
+    share_desc:'Este enlace permite ver tu adherencia de la última semana (solo lectura).',
+    copy_link:'Copiar enlace', link_copied:'¡Enlace copiado!', copied_clipboard:'Enlace copiado al portapapeles',
+    link_warning:'El enlace no requiere contraseña. Quien lo tenga puede ver tu medicación.',
+    quick_access:'Accesos rápidos', adherence_diary:'Diario de adherencia', manage_meds:'Gestionar medicamentos',
+    options:'Opciones', logout:'Cerrar sesión', language:'Idioma',
+    disclaimer_title:'Aviso importante',
+    disclaimer_text:'<strong>MediControl no sustituye la consulta médica ni modifica tratamientos.</strong><br><br>La información proporcionada es educativa y de acompañamiento. Ante cualquier duda sobre tu medicación o salud, consulta siempre con tu médico o farmacéutico.<br><br>Esta aplicación te ayuda a llevar un seguimiento de tus tomas, pero las decisiones sobre tu tratamiento deben ser tomadas por profesionales de la salud.',
+    disclaimer_accept:'Acepto que mis datos se usen para seguimiento terapéutico',
+    disclaimer_start:'Comenzar',
+    days:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+    months:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+  },
+  'en': {
+    _name:'English (UK)', _flag:'&#127468;&#127463;',
+    app_name:'MediControl', app_slogan:'Your medication, under control',
+    login:'Log in', register:'Create account', username:'Username', password:'Password',
+    name:'Name', your_name:'Your name', pick_user:'choose a username', min_chars:'minimum 4 characters',
+    invalid_creds:'Invalid credentials', user_exists:'User already exists', session_expired:'Session expired',
+    nav_home:'Home', nav_health:'Health', nav_assistant:'Assistant', nav_treatment:'Treatment', nav_profile:'Profile',
+    good_morning:'Good morning', good_afternoon:'Good afternoon', good_evening:'Good evening',
+    adherence_today:"Today's adherence", taken_of:'taken', of:'of',
+    pending:'Pending', skipped:'Skipped', week:'Week', today_takes:"Today's doses",
+    today:'Today', no_meds_today:'No medications for this day.', add_with_plus:'Add one with the + button',
+    med_taken:'&#10003; Medication taken', take_skipped:'Dose skipped',
+    understand_health:'UNDERSTAND YOUR HEALTH', disease_info:'Disease information',
+    assistant_label:'ASSISTANT', quick_consult:'Quick queries',
+    your_health:'Your health', understand_diseases:'Understand your conditions',
+    no_diseases:'No diseases linked to your medications.',
+    tap_to_see:'Tap to see information', body_parts:'Which body parts does it affect?',
+    risk_factors:'Risk factors', lifestyle_tips:'Lifestyle tips',
+    assistant_title:'Assistant', health_med_info:'Information about your health and medication',
+    assistant_hello:"Hello! I'm your MediControl health assistant. I'm here to help you with information about your treatment and conditions. How can I help you today?",
+    assistant_disclaimer:'This assistant does not replace medical consultation',
+    write_query:'Type your question...',
+    q_diseases:'My conditions', q_how_works:'How does my medication work?',
+    q_if_not_taken:'What happens if I skip it?', q_missed:"I've missed a dose",
+    q_side_effects:'Side effects', q_other_forms:'Other dosage forms',
+    no_meds_loaded:'No medications loaded to answer. Add medications first.',
+    no_diseases_found:'No diseases linked to your medications found.',
+    visit_health_tab:'For more detail, visit the Health tab.',
+    your_conditions:'Your health conditions:',
+    no_info_available:"I don't have that information for your current medications.",
+    cant_answer:"I'm not sure how to answer that. I can help with information about your medications and conditions. Try one of these options:",
+    treatments_title:'Treatments', med_info_subtitle:'Medical information about your medications',
+    no_active_meds:'No active medications.', add_meds_to_see:'Add medications to see treatment information.',
+    no_med_info:'No medical information available for this medication. Consult your doctor or pharmacist.',
+    purpose:'What is it for', if_not_taken:'What happens if I skip it',
+    how_to_take:'How to take it', side_effects:'Side effects',
+    other_forms:'Other dosage forms', missed_dose:'What to do if I missed a dose',
+    inventory:'Inventory', remaining:'remaining', low_stock:'Low stock — reorder soon',
+    no_stock:'Out of stock — reorder urgently',
+    diary:'Diary', last_30_days:'Last 30 days', adherence:'Adherence',
+    taken_label:'Taken', pending_label:'Pending', adherence_calendar:'Adherence calendar',
+    my_meds:'Medications', active_count:'active', active:'Active', inactive:'Inactive',
+    no_meds:'No medications.', tap_plus:'Tap the + button to add one.',
+    section_active:'Active', section_inactive:'Inactive',
+    new_med:'New medication', edit_med:'Edit medication',
+    med_name:'Name', dose:'Dose', schedules:'Times (comma separated)',
+    frequency:'Frequency', color:'Colour', notes_opt:'Notes (optional)',
+    freq_daily:'Daily', freq_weekly:'Weekly', freq_as_needed:'As needed',
+    cancel:'Cancel', save:'Save', delete_med:'Delete this medication?',
+    med_created:'Medication added', med_updated:'Medication updated', med_deleted:'Medication deleted',
+    profile:'Profile', data:'Details', share_with_doctor:'Share with doctor',
+    share_desc:'This link allows your doctor to view your last week adherence (read only).',
+    copy_link:'Copy link', link_copied:'Link copied!', copied_clipboard:'Link copied to clipboard',
+    link_warning:'The link does not require a password. Anyone with it can see your medication.',
+    quick_access:'Quick access', adherence_diary:'Adherence diary', manage_meds:'Manage medications',
+    options:'Options', logout:'Log out', language:'Language',
+    disclaimer_title:'Important notice',
+    disclaimer_text:'<strong>MediControl does not replace medical advice or modify treatments.</strong><br><br>The information provided is educational and supportive. If in doubt about your medication or health, always consult your doctor or pharmacist.<br><br>This application helps you track your doses, but treatment decisions must be made by healthcare professionals.',
+    disclaimer_accept:'I accept that my data is used for therapeutic monitoring',
+    disclaimer_start:'Get started',
+    days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  },
+  'ca': {
+    _name:'Català', _flag:'&#127988;',
+    app_name:'MediControl', app_slogan:'La teva medicació, sota control',
+    login:'Iniciar sessió', register:'Crear compte', username:'Usuari', password:'Contrasenya',
+    name:'Nom', your_name:'El teu nom', pick_user:'tria un usuari', min_chars:'mínim 4 caràcters',
+    invalid_creds:'Credencials invàlides', user_exists:"L'usuari ja existeix", session_expired:'Sessió expirada',
+    nav_home:'Inici', nav_health:'Salut', nav_assistant:'Assistent', nav_treatment:'Tractament', nav_profile:'Perfil',
+    good_morning:'Bon dia', good_afternoon:'Bona tarda', good_evening:'Bona nit',
+    adherence_today:"Adherència d'avui", taken_of:'presos', of:'de',
+    pending:'Pendents', skipped:'Omesos', week:'Setmana', today_takes:'Preses del dia',
+    today:'Avui', no_meds_today:'No hi ha medicaments per a aquest dia.', add_with_plus:'Afegeix-ne un amb el botó +',
+    med_taken:'&#10003; Medicament pres', take_skipped:'Presa omesa',
+    understand_health:'ENTÉN LA TEVA SALUT', disease_info:'Informació de malalties',
+    assistant_label:'ASSISTENT', quick_consult:'Consultes ràpides',
+    your_health:'La teva salut', understand_diseases:'Entén les teves malalties',
+    no_diseases:'No hi ha malalties associades als teus medicaments.',
+    tap_to_see:'Toca per veure informació', body_parts:'A quines parts del cos afecta?',
+    risk_factors:'Factors de risc', lifestyle_tips:"Consells d'estil de vida",
+    assistant_title:'Assistent', health_med_info:'Informació sobre la teva salut i medicació',
+    assistant_hello:"Hola! Sóc el teu assistent de salut de MediControl. Estic aquí per ajudar-te amb informació sobre el teu tractament i les teves malalties. En què puc ajudar-te avui?",
+    assistant_disclaimer:'Aquest assistent no substitueix la consulta mèdica',
+    write_query:'Escriu la teva consulta...',
+    q_diseases:'Les meves malalties', q_how_works:'Com actua el meu medicament?',
+    q_if_not_taken:'Què passa si no el prenc?', q_missed:'He oblidat una dosi',
+    q_side_effects:'Efectes secundaris', q_other_forms:'Formes farmacèutiques',
+    no_meds_loaded:'No tinc medicaments carregats per respondre. Afegeix medicaments primer.',
+    no_diseases_found:'No he trobat malalties associades als teus medicaments.',
+    visit_health_tab:'Per a més detall, visita la pestanya Salut.',
+    your_conditions:'Les teves condicions de salut:',
+    no_info_available:'No tinc aquesta informació per als teus medicaments actuals.',
+    cant_answer:'No estic segur de com respondre a això. Puc ajudar-te amb informació sobre els teus medicaments i malalties. Prova amb alguna d\'aquestes opcions:',
+    treatments_title:'Tractaments', med_info_subtitle:'Informació mèdica dels teus medicaments',
+    no_active_meds:'No hi ha medicaments actius.', add_meds_to_see:'Afegeix medicaments per veure la informació de tractament.',
+    no_med_info:'No hi ha informació mèdica carregada per a aquest medicament. Consulta el teu metge o farmacèutic.',
+    purpose:'Per a què serveix', if_not_taken:'Què passa si no el prenc',
+    how_to_take:'Com es pren', side_effects:'Efectes secundaris',
+    other_forms:'Altres formes farmacèutiques', missed_dose:'Què fer si he oblidat una dosi',
+    inventory:'Inventari', remaining:'restants', low_stock:'Estoc baix — reposar aviat',
+    no_stock:'Sense estoc — reposar urgent',
+    diary:'Diari', last_30_days:'Últims 30 dies', adherence:'Adherència',
+    taken_label:'Preses', pending_label:'Pendents', adherence_calendar:"Calendari d'adherència",
+    my_meds:'Medicaments', active_count:'actius', active:'Actiu', inactive:'Inactiu',
+    no_meds:'No hi ha medicaments.', tap_plus:'Toca el botó + per afegir-ne un.',
+    section_active:'Actius', section_inactive:'Inactius',
+    new_med:'Nou medicament', edit_med:'Editar medicament',
+    med_name:'Nom', dose:'Dosi', schedules:'Horaris (separar amb coma)',
+    frequency:'Freqüència', color:'Color', notes_opt:'Notes (opcional)',
+    freq_daily:'Diari', freq_weekly:'Setmanal', freq_as_needed:'Segons necessitat',
+    cancel:'Cancel·lar', save:'Desar', delete_med:'Eliminar aquest medicament?',
+    med_created:'Medicament afegit', med_updated:'Medicament actualitzat', med_deleted:'Medicament eliminat',
+    profile:'Perfil', data:'Dades', share_with_doctor:'Compartir amb metge',
+    share_desc:"Aquest enllaç permet veure la teva adherència de l'última setmana (només lectura).",
+    copy_link:'Copiar enllaç', link_copied:'Enllaç copiat!', copied_clipboard:'Enllaç copiat al porta-retalls',
+    link_warning:'L\'enllaç no requereix contrasenya. Qui el tingui pot veure la teva medicació.',
+    quick_access:'Accessos ràpids', adherence_diary:"Diari d'adherència", manage_meds:'Gestionar medicaments',
+    options:'Opcions', logout:'Tancar sessió', language:'Idioma',
+    disclaimer_title:'Avís important',
+    disclaimer_text:'<strong>MediControl no substitueix la consulta mèdica ni modifica tractaments.</strong><br><br>La informació proporcionada és educativa i d\'acompanyament. Davant qualsevol dubte sobre la teva medicació o salut, consulta sempre el teu metge o farmacèutic.',
+    disclaimer_accept:'Accepto que les meves dades es facin servir per a seguiment terapèutic',
+    disclaimer_start:'Començar',
+    days:['Dg','Dl','Dm','Dc','Dj','Dv','Ds'],
+    months:['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'],
+  },
+  'va': {
+    _name:'Valencià', _flag:'&#127988;',
+    app_name:'MediControl', app_slogan:'La teua medicació, baix control',
+    login:'Iniciar sessió', register:'Crear compte', username:'Usuari', password:'Contrasenya',
+    name:'Nom', your_name:'El teu nom', pick_user:'tria un usuari', min_chars:'mínim 4 caràcters',
+    invalid_creds:'Credencials invàlides', user_exists:"L'usuari ja existeix", session_expired:'Sessió expirada',
+    nav_home:'Inici', nav_health:'Salut', nav_assistant:'Assistent', nav_treatment:'Tractament', nav_profile:'Perfil',
+    good_morning:'Bon dia', good_afternoon:'Bona vesprada', good_evening:'Bona nit',
+    adherence_today:"Adherència d'avui", taken_of:'presos', of:'de',
+    pending:'Pendents', skipped:'Omesos', week:'Setmana', today_takes:'Preses del dia',
+    today:'Hui', no_meds_today:'No hi ha medicaments per a este dia.', add_with_plus:'Afig-ne un amb el botó +',
+    med_taken:'&#10003; Medicament pres', take_skipped:'Presa omesa',
+    understand_health:'ENTÉN LA TEUA SALUT', disease_info:'Informació de malalties',
+    assistant_label:'ASSISTENT', quick_consult:'Consultes ràpides',
+    your_health:'La teua salut', understand_diseases:'Entén les teues malalties',
+    no_diseases:'No hi ha malalties associades als teus medicaments.',
+    tap_to_see:'Toca per veure informació', body_parts:'A quines parts del cos afecta?',
+    risk_factors:'Factors de risc', lifestyle_tips:"Consells d'estil de vida",
+    assistant_title:'Assistent', health_med_info:'Informació sobre la teua salut i medicació',
+    assistant_hello:"Hola! Sóc el teu assistent de salut de MediControl. Estic ací per ajudar-te amb informació sobre el teu tractament. En què puc ajudar-te hui?",
+    assistant_disclaimer:'Este assistent no substitueix la consulta mèdica',
+    write_query:'Escriu la teua consulta...',
+    q_diseases:'Les meues malalties', q_how_works:'Com actua el meu medicament?',
+    q_if_not_taken:'Què passa si no el prenc?', q_missed:'He oblidat una dosi',
+    q_side_effects:'Efectes secundaris', q_other_forms:'Formes farmacèutiques',
+    no_meds_loaded:'No tinc medicaments carregats per a respondre.',
+    no_diseases_found:'No he trobat malalties associades als teus medicaments.',
+    visit_health_tab:'Per a més detall, visita la pestanya Salut.',
+    your_conditions:'Les teues condicions de salut:',
+    no_info_available:'No tinc eixa informació per als teus medicaments actuals.',
+    cant_answer:"No estic segur de com respondre a això. Prova amb alguna d'estes opcions:",
+    treatments_title:'Tractaments', med_info_subtitle:'Informació mèdica dels teus medicaments',
+    no_active_meds:'No hi ha medicaments actius.', add_meds_to_see:'Afig medicaments per veure la informació.',
+    no_med_info:'No hi ha informació mèdica per a este medicament. Consulta el teu metge.',
+    purpose:'Per a què serveix', if_not_taken:'Què passa si no el prenc',
+    how_to_take:'Com es pren', side_effects:'Efectes secundaris',
+    other_forms:'Altres formes farmacèutiques', missed_dose:'Què fer si he oblidat una dosi',
+    inventory:'Inventari', remaining:'restants', low_stock:'Estoc baix', no_stock:'Sense estoc',
+    diary:'Diari', last_30_days:'Últims 30 dies', adherence:'Adherència',
+    taken_label:'Preses', pending_label:'Pendents', adherence_calendar:"Calendari d'adherència",
+    my_meds:'Medicaments', active_count:'actius', active:'Actiu', inactive:'Inactiu',
+    no_meds:'No hi ha medicaments.', tap_plus:'Toca el botó + per afegir-ne un.',
+    section_active:'Actius', section_inactive:'Inactius',
+    new_med:'Nou medicament', edit_med:'Editar medicament',
+    med_name:'Nom', dose:'Dosi', schedules:'Horaris (separar amb coma)',
+    frequency:'Freqüència', color:'Color', notes_opt:'Notes (opcional)',
+    freq_daily:'Diari', freq_weekly:'Setmanal', freq_as_needed:'Segons necessitat',
+    cancel:'Cancel·lar', save:'Guardar', delete_med:'Eliminar este medicament?',
+    med_created:'Medicament afegit', med_updated:'Medicament actualitzat', med_deleted:'Medicament eliminat',
+    profile:'Perfil', data:'Dades', share_with_doctor:'Compartir amb metge',
+    share_desc:"Este enllaç permet veure la teua adherència de l'última setmana.",
+    copy_link:'Copiar enllaç', link_copied:'Enllaç copiat!', copied_clipboard:'Enllaç copiat',
+    link_warning:"L'enllaç no requereix contrasenya.",
+    quick_access:'Accessos ràpids', adherence_diary:"Diari d'adherència", manage_meds:'Gestionar medicaments',
+    options:'Opcions', logout:'Tancar sessió', language:'Idioma',
+    disclaimer_title:'Avís important',
+    disclaimer_text:'<strong>MediControl no substitueix la consulta mèdica.</strong><br><br>La informació és educativa. Consulta sempre el teu metge.',
+    disclaimer_accept:'Accepte que les meues dades es facen servir per a seguiment terapèutic',
+    disclaimer_start:'Començar',
+    days:['Dg','Dl','Dm','Dc','Dj','Dv','Ds'],
+    months:['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'],
+  },
+  'eu': {
+    _name:'Euskara', _flag:'&#127988;',
+    app_name:'MediControl', app_slogan:'Zure medikazioa, kontrolpean',
+    login:'Saioa hasi', register:'Kontua sortu', username:'Erabiltzailea', password:'Pasahitza',
+    name:'Izena', your_name:'Zure izena', pick_user:'aukeratu erabiltzaile bat', min_chars:'gutxienez 4 karaktere',
+    invalid_creds:'Kredentzial okerrak', user_exists:'Erabiltzailea dagoeneko existitzen da', session_expired:'Saioa iraungi da',
+    nav_home:'Hasiera', nav_health:'Osasuna', nav_assistant:'Laguntzailea', nav_treatment:'Tratamendua', nav_profile:'Profila',
+    good_morning:'Egun on', good_afternoon:'Arratsalde on', good_evening:'Gabon',
+    adherence_today:'Gaurko atxikimendua', taken_of:'hartuak', of:'(e)tik',
+    pending:'Zain', skipped:'Saltatuak', week:'Astea', today_takes:'Gaurko dosiak',
+    today:'Gaur', no_meds_today:'Ez dago medikamenturik egun honetarako.', add_with_plus:'Gehitu bat + botoiarekin',
+    med_taken:'&#10003; Medikamentua hartua', take_skipped:'Dosia saltatua',
+    understand_health:'ULERTU ZURE OSASUNA', disease_info:'Gaixotasunen informazioa',
+    assistant_label:'LAGUNTZAILEA', quick_consult:'Kontsulta azkarrak',
+    your_health:'Zure osasuna', understand_diseases:'Ulertu zure gaixotasunak',
+    no_diseases:'Ez dago gaixotasunik zure medikamentuei lotuta.',
+    tap_to_see:'Sakatu informazioa ikusteko', body_parts:'Gorputzeko zein atalei eragiten die?',
+    risk_factors:'Arrisku-faktoreak', lifestyle_tips:'Bizi-estiloko aholkuak',
+    assistant_title:'Laguntzailea', health_med_info:'Zure osasunari eta medikazioari buruzko informazioa',
+    assistant_hello:'Kaixo! MediControl-eko osasun-laguntzailea naiz. Hemen nago zure tratamenduari buruzko informazioarekin laguntzeko. Zertan lagundu dezaket gaur?',
+    assistant_disclaimer:'Laguntzaile honek ez du mediku-kontsulta ordezkatzen',
+    write_query:'Idatzi zure kontsulta...',
+    q_diseases:'Nire gaixotasunak', q_how_works:'Nola funtzionatzen du nire medikamentuak?',
+    q_if_not_taken:'Zer gertatzen da hartzen ez badut?', q_missed:'Dosi bat ahaztu dut',
+    q_side_effects:'Bigarren mailako ondorioak', q_other_forms:'Beste forma farmzeutikoak',
+    no_meds_loaded:'Ez dago medikamenturik kargatuta erantzuteko.',
+    no_diseases_found:'Ez dut gaixotasunik aurkitu zure medikamentuei lotuta.',
+    visit_health_tab:'Xehetasun gehiagorako, bisitatu Osasuna fitxa.',
+    your_conditions:'Zure osasun-egoerak:',
+    no_info_available:'Ez dut informazio hori zure medikamentu aktualekin.',
+    cant_answer:'Ez nago ziur nola erantzun. Aukera hauekin saiatu:',
+    treatments_title:'Tratamenduak', med_info_subtitle:'Zure medikamentuen informazio medikoa',
+    no_active_meds:'Ez dago medikamentu aktiborik.', add_meds_to_see:'Gehitu medikamentuak informazioa ikusteko.',
+    no_med_info:'Ez dago informazio medikorik medikamentu honetarako. Kontsultatu zure medikuarekin.',
+    purpose:'Zertarako da', if_not_taken:'Zer gertatzen da hartzen ez badut',
+    how_to_take:'Nola hartu', side_effects:'Bigarren mailako ondorioak',
+    other_forms:'Beste forma farmzeutikoak', missed_dose:'Zer egin dosi bat ahazten badut',
+    inventory:'Inbentarioa', remaining:'geratzen dira', low_stock:'Stock baxua', no_stock:'Stockik gabe',
+    diary:'Egunkaria', last_30_days:'Azken 30 egunak', adherence:'Atxikimendua',
+    taken_label:'Hartuak', pending_label:'Zain', adherence_calendar:'Atxikimendu-egutegia',
+    my_meds:'Medikamentuak', active_count:'aktiboak', active:'Aktiboa', inactive:'Ez-aktiboa',
+    no_meds:'Ez dago medikamenturik.', tap_plus:'Sakatu + botoia bat gehitzeko.',
+    section_active:'Aktiboak', section_inactive:'Ez-aktiboak',
+    new_med:'Medikamentu berria', edit_med:'Medikamentua editatu',
+    med_name:'Izena', dose:'Dosia', schedules:'Orduak (komaz bereizirik)',
+    frequency:'Maiztasuna', color:'Kolorea', notes_opt:'Oharrak (aukerakoa)',
+    freq_daily:'Egunero', freq_weekly:'Astero', freq_as_needed:'Behar denean',
+    cancel:'Utzi', save:'Gorde', delete_med:'Medikamentu hau ezabatu?',
+    med_created:'Medikamentua gehitua', med_updated:'Medikamentua eguneratua', med_deleted:'Medikamentua ezabatua',
+    profile:'Profila', data:'Datuak', share_with_doctor:'Medikuarekin partekatu',
+    share_desc:'Esteka honek azken asteko atxikimendua ikusteko aukera ematen du (irakurtzeko soilik).',
+    copy_link:'Esteka kopiatu', link_copied:'Esteka kopiatua!', copied_clipboard:'Esteka arbelera kopiatua',
+    link_warning:'Estekak ez du pasahitzik behar.',
+    quick_access:'Sarbide azkarrak', adherence_diary:'Atxikimendu-egunkaria', manage_meds:'Medikamentuak kudeatu',
+    options:'Aukerak', logout:'Saioa itxi', language:'Hizkuntza',
+    disclaimer_title:'Ohartarazpen garrantzitsua',
+    disclaimer_text:'<strong>MediControl-ek ez du mediku-kontsulta ordezkatzen.</strong><br><br>Emandako informazioa hezigarria da. Kontsultatu beti zure medikuarekin.',
+    disclaimer_accept:'Onartzen dut nire datuak jarraipen terapeutikorako erabiltzea',
+    disclaimer_start:'Hasi',
+    days:['Ig','Al','As','Az','Og','Or','Lr'],
+    months:['Urtarrila','Otsaila','Martxoa','Apirila','Maiatza','Ekaina','Uztaila','Abuztua','Iraila','Urria','Azaroa','Abendua'],
+  }
+};
+
+let currentLang = localStorage.getItem('mc_lang') || 'es-LA';
+function t(key) { return (LANGS[currentLang] && LANGS[currentLang][key]) || (LANGS['es-LA'][key]) || key; }
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('mc_lang', lang);
+  chatHistory = [];
+  treatmentCache = null;
+  // Re-render current page
+  const activePage = document.querySelector('.page.active');
+  if (activePage) {
+    const pageId = activePage.id.replace('page-','');
+    updateStaticTexts();
+    showPage(pageId);
+  }
+}
+function updateStaticTexts() {
+  // Update nav labels
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const pg = n.dataset.page;
+    const map = {home:'nav_home',diseases:'nav_health',assistant:'nav_assistant',treatments:'nav_treatment',profile:'nav_profile'};
+    const lbl = n.querySelector('.nav-label');
+    if (lbl && map[pg]) lbl.textContent = t(map[pg]);
+  });
+  // Update auth screen
+  const authTitle = document.querySelector('.auth-title');
+  if (authTitle) authTitle.textContent = t('app_name');
+  const authSub = document.querySelector('.auth-sub');
+  if (authSub) authSub.textContent = t('app_slogan');
+  // Update disclaimer
+  const discTitle = document.querySelector('#disclaimerModal h2');
+  if (discTitle) discTitle.textContent = t('disclaimer_title');
+}
+
 // ===== STATE =====
 let token = localStorage.getItem('mc_token');
 let displayName = localStorage.getItem('mc_name') || '';
 let currentDate = new Date();
 const COLORS = ['#1E88E5','#66BB6A','#FF7043','#AB47BC','#26C6DA','#FFA726','#EF5350','#78909C'];
 let selectedColor = COLORS[0];
-const DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
-const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 // ===== API =====
 async function api(path, opts = {}) {
@@ -537,7 +962,7 @@ async function loadHome() {
     const d = new Date(todayDate); d.setDate(d.getDate() - i);
     const ds = fmtDate(d);
     const isT = ds === today;
-    const dayName = DAYS[d.getDay()];
+    const dayName = t('days')[d.getDay()];
     let cls = 'none';
     try {
       const dt = await api(`/api/takes/${ds}`);
@@ -554,12 +979,12 @@ async function loadHome() {
   }
 
   // Date nav
-  const dayLabel = isToday ? 'Hoy' : `${DAYS[currentDate.getDay()]} ${currentDate.getDate()}`;
+  const dayLabel = isToday ? t('today') : `${t('days')[currentDate.getDay()]} ${currentDate.getDate()}`;
 
   // Takes list
   let takesHtml = '';
   if (takes.length === 0) {
-    takesHtml = '<div class="empty-state"><div class="icon">&#128138;</div><p>No hay medicamentos para este dia.<br>Agrega uno con el boton +</p></div>';
+    takesHtml = `<div class="empty-state"><div class="icon">&#128138;</div><p>${t('no_meds_today')}<br>${t('add_with_plus')}</p></div>`;
   } else {
     takesHtml = takes.map(t => {
       const status = t.taken ? 'done' : (t.skipped ? 'skipped' : 'pending');
@@ -577,7 +1002,7 @@ async function loadHome() {
   }
 
   const hour = new Date().getHours();
-  const greetWord = hour < 12 ? 'Buenos dias' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
+  const greetWord = hour < 12 ? t('good_morning') : hour < 19 ? t('good_afternoon') : t('good_evening');
 
   page.innerHTML = `
     <div class="page-header">
@@ -591,11 +1016,11 @@ async function loadHome() {
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <div onclick="showPage('diseases')" style="flex:1;background:linear-gradient(135deg,#1565C0,#0D47A1);border-radius:var(--radius-sm);padding:12px 14px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
         <span style="font-size:1.3em">&#128154;</span>
-        <div><div style="font-size:.8em;font-weight:700">ENTIENDE TU SALUD</div><div style="font-size:.65em;opacity:.7">Informacion de enfermedades</div></div>
+        <div><div style="font-size:.8em;font-weight:700">${t('understand_health')}</div><div style="font-size:.65em;opacity:.7">${t('disease_info')}</div></div>
       </div>
       <div onclick="showPage('assistant')" style="flex:1;background:linear-gradient(135deg,#2E7D32,#1B5E20);border-radius:var(--radius-sm);padding:12px 14px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
         <span style="font-size:1.3em">&#128172;</span>
-        <div><div style="font-size:.8em;font-weight:700">ASISTENTE</div><div style="font-size:.65em;opacity:.7">Consultas rapidas</div></div>
+        <div><div style="font-size:.8em;font-weight:700">${t('assistant_label')}</div><div style="font-size:.65em;opacity:.7">${t('quick_consult')}</div></div>
       </div>
     </div>
 
@@ -608,20 +1033,20 @@ async function loadHome() {
         <div class="ring-text">${pct}%</div>
       </div>
       <div class="progress-info">
-        <h3>Adherencia ${isToday ? 'de hoy' : dayLabel}</h3>
-        <div style="font-size:1.1em;font-weight:700">${done} de ${total} tomados</div>
+        <h3>${t('adherence_today')}</h3>
+        <div style="font-size:1.1em;font-weight:700">${done} ${t('of')} ${total} ${t('taken_of')}</div>
         <div class="progress-stats">
-          <div class="progress-stat"><div class="num">${pending}</div><div class="lbl">Pendientes</div></div>
-          <div class="progress-stat"><div class="num">${skipped}</div><div class="lbl">Saltados</div></div>
+          <div class="progress-stat"><div class="num">${pending}</div><div class="lbl">${t('pending')}</div></div>
+          <div class="progress-stat"><div class="num">${skipped}</div><div class="lbl">${t('skipped')}</div></div>
         </div>
       </div>
     </div>
 
-    <div class="section-title">Semana</div>
+    <div class="section-title">${t('week')}</div>
     <div class="week-bar">${weekHtml}</div>
 
     <div class="section-title" style="display:flex;align-items:center;gap:8px">
-      <span>Tomas del dia</span>
+      <span>${t('today_takes')}</span>
       <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
         <button onclick="changeDate(-1)" style="background:none;border:1px solid var(--gray200);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--gray500);font-size:.8em">&#9664;</button>
         <span onclick="goToday();loadHome()" style="font-size:.78em;color:var(--primary);font-weight:600;min-width:40px;text-align:center;cursor:pointer">${dayLabel}</span>
@@ -637,8 +1062,8 @@ function changeDate(dir) { currentDate.setDate(currentDate.getDate() + dir); loa
 async function toggleTake(id, taken, skipped) {
   await api(`/api/takes/${id}`, { method: 'PUT', body: JSON.stringify({ taken, skipped }) });
   await loadHome();
-  if (taken) toast('&#10003; Medicamento tomado');
-  if (skipped) toast('Toma saltada');
+  if (taken) toast(t('med_taken'));
+  if (skipped) toast(t('take_skipped'));
 }
 
 // ===== DIARY PAGE =====
@@ -747,8 +1172,14 @@ async function loadProfile() {
       </div>
     </div>
     <div class="profile-card">
-      <h3>&#9881; Opciones</h3>
-      <button class="btn btn-outline" onclick="logout()" style="margin-top:4px;color:var(--red);border-color:var(--red)">Cerrar sesion</button>
+      <h3>&#127760; ${t('language')}</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${Object.keys(LANGS).map(k => `<button class="btn ${currentLang===k?'btn-primary':'btn-outline'}" onclick="setLang('${k}')" style="flex:0 0 auto;width:auto;padding:8px 14px;font-size:.78em">${LANGS[k]._flag} ${LANGS[k]._name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="profile-card">
+      <h3>&#9881; ${t('options')}</h3>
+      <button class="btn btn-outline" onclick="logout()" style="margin-top:4px;color:var(--red);border-color:var(--red)">${t('logout')}</button>
     </div>
   `;
 }
