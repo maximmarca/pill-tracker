@@ -261,6 +261,43 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 .treat-inv-input:focus{outline:none;border-color:var(--primary)}
 .treat-inv-label{font-size:.8em;color:var(--gray500)}
 .treat-inv-alert{font-size:.75em;color:var(--orange);font-weight:600;margin-top:4px}
+
+/* ===== DISEASE CARDS ===== */
+.disease-card{background:#fff;border-radius:var(--radius-sm);margin-bottom:14px;box-shadow:var(--shadow-sm);overflow:hidden}
+.disease-header{background:linear-gradient(135deg,var(--primary),#1565C0);padding:16px;color:#fff;cursor:pointer}
+.disease-header h3{font-size:.95em;font-weight:700;margin-bottom:2px}
+.disease-header p{font-size:.75em;opacity:.8}
+.disease-body{padding:16px;display:none}
+.disease-body.open{display:block;animation:fadeIn .25s}
+.disease-desc{font-size:.82em;color:var(--gray600);line-height:1.6;margin-bottom:16px}
+.organ-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.organ-item{display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--gray50);border-radius:var(--radius-xs);border:1px solid var(--gray100)}
+.organ-icon{width:36px;height:36px;border-radius:50%;background:var(--red-light);display:flex;align-items:center;justify-content:center;font-size:1em;flex-shrink:0;color:var(--red)}
+.organ-item h4{font-size:.82em;font-weight:700;color:var(--gray800);margin-bottom:2px}
+.organ-item p{font-size:.75em;color:var(--gray500);line-height:1.5}
+.disease-section{margin-bottom:14px}
+.disease-section h4{font-size:.75em;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--primary-light)}
+.disease-section li{font-size:.8em;color:var(--gray600);line-height:1.6;margin-bottom:4px;padding-left:14px;position:relative;list-style:none}
+.disease-section li::before{content:'•';position:absolute;left:0;color:var(--primary);font-weight:700}
+.disease-section ul{padding:0}
+
+/* ===== ASSISTANT ===== */
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - var(--nav-height) - 80px);max-height:600px}
+.chat-messages{flex:1;overflow-y:auto;padding:8px 0;display:flex;flex-direction:column;gap:8px}
+.chat-bubble{max-width:85%;padding:12px 16px;border-radius:16px;font-size:.85em;line-height:1.6;animation:fadeIn .2s}
+.chat-bubble.bot{background:#fff;border:1px solid var(--gray200);color:var(--gray700);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-bubble.user{background:var(--primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-options{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0}
+.chat-opt{padding:8px 14px;border-radius:20px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:.78em;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
+.chat-opt:hover{background:var(--primary-light)}
+.chat-opt:active{transform:scale(.97)}
+.chat-input-row{display:flex;gap:8px;padding-top:8px;border-top:1px solid var(--gray200)}
+.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--gray200);border-radius:24px;font-size:.85em;font-family:inherit;color:var(--gray800);background:var(--gray50)}
+.chat-input:focus{outline:none;border-color:var(--primary)}
+.chat-input::placeholder{color:var(--gray400)}
+.chat-send{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;border:none;cursor:pointer;font-size:1em;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.chat-send:active{transform:scale(.9)}
+.chat-disclaimer{text-align:center;font-size:.7em;color:var(--gray400);padding:6px 0}
 </style>
 </head>
 <body>
@@ -295,6 +332,8 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 
   <!-- Pages -->
   <div class="page active" id="page-home"></div>
+  <div class="page" id="page-diseases"></div>
+  <div class="page" id="page-assistant"></div>
   <div class="page" id="page-treatments"></div>
   <div class="page" id="page-diary"></div>
   <div class="page" id="page-meds"></div>
@@ -309,22 +348,40 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
       <div class="nav-icon">&#127968;</div>
       <div class="nav-label">Inicio</div>
     </div>
+    <div class="nav-item" data-page="diseases" onclick="showPage('diseases')">
+      <div class="nav-icon">&#128154;</div>
+      <div class="nav-label">Salud</div>
+    </div>
+    <div class="nav-item" data-page="assistant" onclick="showPage('assistant')">
+      <div class="nav-icon">&#128172;</div>
+      <div class="nav-label">Asistente</div>
+    </div>
     <div class="nav-item" data-page="treatments" onclick="showPage('treatments')">
-      <div class="nav-icon">&#128218;</div>
-      <div class="nav-label">Tratamientos</div>
-    </div>
-    <div class="nav-item" data-page="diary" onclick="showPage('diary')">
-      <div class="nav-icon">&#128197;</div>
-      <div class="nav-label">Diario</div>
-    </div>
-    <div class="nav-item" data-page="meds" onclick="showPage('meds')">
       <div class="nav-icon">&#128138;</div>
-      <div class="nav-label">Medicamentos</div>
+      <div class="nav-label">Tratamiento</div>
     </div>
     <div class="nav-item" data-page="profile" onclick="showPage('profile')">
       <div class="nav-icon">&#128100;</div>
       <div class="nav-label">Perfil</div>
     </div>
+  </div>
+</div>
+
+<!-- ===== DISCLAIMER MODAL ===== -->
+<div class="modal-overlay" id="disclaimerModal">
+  <div class="modal" style="border-radius:20px;text-align:center">
+    <div style="font-size:2.5em;margin-bottom:8px">&#9877;</div>
+    <h2 style="font-size:1.1em;margin-bottom:12px">Aviso importante</h2>
+    <div style="background:var(--gray50);border:1.5px solid var(--gray200);border-radius:var(--radius-xs);padding:14px;text-align:left;font-size:.82em;color:var(--gray600);line-height:1.6;margin-bottom:16px">
+      <strong>MediControl no sustituye la consulta medica ni modifica tratamientos.</strong><br><br>
+      La informacion proporcionada es educativa y de acompañamiento. Ante cualquier duda sobre tu medicacion o salud, consulta siempre con tu medico o farmaceutico.<br><br>
+      Esta aplicacion te ayuda a llevar un seguimiento de tus tomas, pero las decisiones sobre tu tratamiento deben ser tomadas por profesionales de la salud.
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:.82em;color:var(--gray600);cursor:pointer;justify-content:center;margin-bottom:16px">
+      <input type="checkbox" id="disclaimerCheck" style="width:18px;height:18px;accent-color:var(--primary)">
+      Acepto que mis datos se usen para seguimiento terapeutico
+    </label>
+    <button class="btn btn-primary" id="disclaimerBtn" onclick="acceptDisclaimer()" disabled style="opacity:.5">Comenzar</button>
   </div>
 </div>
 
@@ -423,8 +480,10 @@ function logout() {
 function showApp() {
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('app').classList.add('show');
+  document.getElementById('userName').textContent = displayName;
   goToday();
   showPage('home');
+  checkDisclaimer();
 }
 
 function showPage(id) {
@@ -433,6 +492,8 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   document.querySelector(`[data-page="${id}"]`).classList.add('active');
   if (id === 'home') loadHome();
+  if (id === 'diseases') loadDiseases();
+  if (id === 'assistant') loadAssistant();
   if (id === 'treatments') loadTreatments();
   if (id === 'diary') loadDiary();
   if (id === 'meds') loadMeds();
@@ -525,6 +586,17 @@ async function loadHome() {
         <div class="greeting-name">${displayName}</div>
       </div>
       <div class="header-avatar" onclick="showPage('profile')">${displayName.charAt(0).toUpperCase()}</div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <div onclick="showPage('diseases')" style="flex:1;background:linear-gradient(135deg,#1565C0,#0D47A1);border-radius:var(--radius-sm);padding:12px 14px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+        <span style="font-size:1.3em">&#128154;</span>
+        <div><div style="font-size:.8em;font-weight:700">ENTIENDE TU SALUD</div><div style="font-size:.65em;opacity:.7">Informacion de enfermedades</div></div>
+      </div>
+      <div onclick="showPage('assistant')" style="flex:1;background:linear-gradient(135deg,#2E7D32,#1B5E20);border-radius:var(--radius-sm);padding:12px 14px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+        <span style="font-size:1.3em">&#128172;</span>
+        <div><div style="font-size:.8em;font-weight:700">ASISTENTE</div><div style="font-size:.65em;opacity:.7">Consultas rapidas</div></div>
+      </div>
     </div>
 
     <div class="progress-card">
@@ -666,6 +738,13 @@ async function loadProfile() {
       <p style="font-size:.82em;color:var(--gray500);margin-bottom:12px">Este link permite ver tu adherencia de la ultima semana (solo lectura).</p>
       <div class="share-url" id="shareLink" onclick="copyShare('${shareUrl}')">${shareUrl}</div>
       <button class="btn btn-primary" onclick="copyShare('${shareUrl}')" style="margin-top:8px">Copiar link</button>
+    </div>
+    <div class="profile-card">
+      <h3>&#128203; Accesos rapidos</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-primary" onclick="showPage('diary')" style="text-align:left;padding-left:16px">&#128197; Diario de adherencia</button>
+        <button class="btn btn-outline" onclick="showPage('meds')" style="text-align:left;padding-left:16px">&#128138; Gestionar medicamentos</button>
+      </div>
     </div>
     <div class="profile-card">
       <h3>&#9881; Opciones</h3>
@@ -845,6 +924,245 @@ function saveInventory(medId, val) {
     toast('&#9888; Stock bajo — recordar reponer');
   }
   loadTreatments();
+}
+
+// ===== DISEASES PAGE =====
+const ORGAN_ICONS = {heart:'&#10084;',eye:'&#128065;',kidney:'&#9883;',brain:'&#129504;',artery:'&#128296;',nerve:'&#9889;',foot:'&#129462;',metabolism:'&#128293;',reproductive:'&#9734;',stomach:'&#9898;',esophagus:'&#9898;',throat:'&#9898;',blood:'&#128308;',skin:'&#9898;'};
+
+async function loadDiseases() {
+  const page = document.getElementById('page-diseases');
+  let diseases = [];
+  try { diseases = await api('/api/diseases'); } catch(e) {}
+
+  let html = `<div class="page-header"><div><div class="greeting-name">Tu salud</div><div class="greeting">Entiende tus enfermedades</div></div></div>`;
+
+  if (diseases.length === 0) {
+    html += '<div class="empty-state"><div class="icon">&#128154;</div><p>No hay enfermedades asociadas a tus medicamentos.</p></div>';
+  } else {
+    diseases.forEach((d, i) => {
+      const organsHtml = d.organs.map(o => `
+        <div class="organ-item">
+          <div class="organ-icon">${ORGAN_ICONS[o.icon] || '&#9898;'}</div>
+          <div><h4>${o.name}</h4><p>${o.description}</p></div>
+        </div>`).join('');
+
+      const riskHtml = d.risk_factors.map(r => `<li>${r}</li>`).join('');
+      const tipsHtml = d.lifestyle_tips.map(t => `<li>${t}</li>`).join('');
+
+      html += `
+        <div class="disease-card">
+          <div class="disease-header" onclick="toggleDisease(${i})">
+            <h3>${d.name}</h3>
+            <p>Toca para ver informacion</p>
+          </div>
+          <div class="disease-body" id="disease-body-${i}">
+            <div class="disease-desc">${d.description}</div>
+            <div class="disease-section">
+              <h4>&#129657; A que partes del cuerpo afecta</h4>
+              <div class="organ-list">${organsHtml}</div>
+            </div>
+            <div class="disease-section">
+              <h4>&#9888; Factores de riesgo</h4>
+              <ul>${riskHtml}</ul>
+            </div>
+            <div class="disease-section">
+              <h4>&#128154; Consejos de estilo de vida</h4>
+              <ul>${tipsHtml}</ul>
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+
+  page.innerHTML = html;
+}
+
+function toggleDisease(i) {
+  const body = document.getElementById('disease-body-' + i);
+  body.classList.toggle('open');
+}
+
+// ===== ASSISTANT PAGE =====
+let chatHistory = [];
+let treatmentCache = null;
+
+async function loadAssistant() {
+  const page = document.getElementById('page-assistant');
+
+  // Load treatment data for answers
+  if (!treatmentCache) {
+    try { treatmentCache = await api('/api/treatments'); } catch(e) { treatmentCache = []; }
+  }
+
+  page.innerHTML = `
+    <div class="page-header"><div><div class="greeting-name">Asistente</div><div class="greeting">Informacion sobre tu salud y medicacion</div></div></div>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-disclaimer">&#9432; Este asistente no sustituye la consulta medica</div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Escribe tu consulta..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">&#10148;</button>
+      </div>
+    </div>`;
+
+  const msgs = document.getElementById('chatMessages');
+
+  if (chatHistory.length === 0) {
+    addBotMessage('Hola! Soy tu asistente de salud de MediControl. Estoy aqui para ayudarte con informacion sobre tu tratamiento y tus enfermedades. ¿En que puedo ayudarte hoy?');
+    showQuickOptions();
+  } else {
+    chatHistory.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'chat-bubble ' + m.type;
+      div.innerHTML = m.text;
+      msgs.appendChild(div);
+    });
+    showQuickOptions();
+  }
+}
+
+function addBotMessage(text) {
+  const msgs = document.getElementById('chatMessages');
+  if (!msgs) return;
+  const div = document.createElement('div');
+  div.className = 'chat-bubble bot';
+  div.innerHTML = text;
+  msgs.appendChild(div);
+  chatHistory.push({type:'bot', text});
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('chatMessages');
+  if (!msgs) return;
+  const div = document.createElement('div');
+  div.className = 'chat-bubble user';
+  div.textContent = text;
+  msgs.appendChild(div);
+  chatHistory.push({type:'user', text});
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showQuickOptions() {
+  const msgs = document.getElementById('chatMessages');
+  if (!msgs) return;
+  const opts = document.createElement('div');
+  opts.className = 'chat-options';
+
+  const questions = [
+    {text:'Mis enfermedades', action:'diseases'},
+    {text:'¿Como actua mi medicamento?', action:'how_works'},
+    {text:'¿Que pasa si no lo tomo?', action:'if_not_taken'},
+    {text:'Olvide una dosis', action:'missed'},
+    {text:'Efectos secundarios', action:'side_effects'},
+    {text:'Formas farmaceuticas', action:'other_forms'}
+  ];
+
+  questions.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'chat-opt';
+    btn.textContent = q.text;
+    btn.onclick = () => { opts.remove(); handleQuickAction(q.text, q.action); };
+    opts.appendChild(btn);
+  });
+
+  msgs.appendChild(opts);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function handleQuickAction(label, action) {
+  addUserMessage(label);
+
+  if (!treatmentCache || treatmentCache.length === 0) {
+    addBotMessage('No tengo medicamentos cargados para responder. Agrega medicamentos primero.');
+    showQuickOptions();
+    return;
+  }
+
+  if (action === 'diseases') {
+    let diseases = [];
+    try { diseases = await api('/api/diseases'); } catch(e) {}
+    if (diseases.length === 0) {
+      addBotMessage('No encontre enfermedades asociadas a tus medicamentos. Podes ver la seccion "Salud" para mas informacion.');
+    } else {
+      let text = '<strong>Tus condiciones de salud:</strong><br><br>';
+      diseases.forEach(d => {
+        text += `<strong>${d.name}</strong><br>${d.description.substring(0, 150)}...<br><br>`;
+      });
+      text += 'Para mas detalle, visita la pestaña <strong>Salud</strong>.';
+      addBotMessage(text);
+    }
+  } else {
+    const fieldMap = {
+      how_works: {field:'purpose', title:'Como actua'},
+      if_not_taken: {field:'if_not_taken', title:'Si no lo tomas'},
+      missed: {field:'missed_dose', title:'Si olvidaste una dosis'},
+      side_effects: {field:'side_effects', title:'Efectos secundarios'},
+      other_forms: {field:'other_forms', title:'Otras formas'}
+    };
+    const map = fieldMap[action];
+    let text = '';
+    treatmentCache.forEach(t => {
+      if (t.treatment_info && t.treatment_info[map.field]) {
+        text += `<strong>${t.name}:</strong><br>${t.treatment_info[map.field]}<br><br>`;
+      }
+    });
+    if (!text) text = 'No tengo esa informacion para tus medicamentos actuales.';
+    addBotMessage(text);
+  }
+
+  setTimeout(showQuickOptions, 300);
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  // Remove quick options if present
+  document.querySelectorAll('.chat-options').forEach(o => o.remove());
+
+  addUserMessage(text);
+
+  // Simple keyword matching
+  const lower = text.toLowerCase();
+  let matched = false;
+
+  if (lower.includes('olvid') || lower.includes('no tome') || lower.includes('saltee')) {
+    handleQuickAction(text, 'missed'); matched = true;
+  } else if (lower.includes('efecto') || lower.includes('secundario') || lower.includes('reaccion')) {
+    handleQuickAction(text, 'side_effects'); matched = true;
+  } else if (lower.includes('para que') || lower.includes('sirve') || lower.includes('actua') || lower.includes('funcion')) {
+    handleQuickAction(text, 'how_works'); matched = true;
+  } else if (lower.includes('no tomo') || lower.includes('no lo tomo') || lower.includes('dejo de tomar')) {
+    handleQuickAction(text, 'if_not_taken'); matched = true;
+  } else if (lower.includes('forma') || lower.includes('jarabe') || lower.includes('inyec') || lower.includes('gotas')) {
+    handleQuickAction(text, 'other_forms'); matched = true;
+  } else if (lower.includes('enfermedad') || lower.includes('diagnostico') || lower.includes('padezco') || lower.includes('tengo')) {
+    handleQuickAction(text, 'diseases'); matched = true;
+  }
+
+  if (!matched) {
+    addBotMessage('No estoy seguro de como responder a eso. Puedo ayudarte con informacion sobre tus medicamentos y enfermedades. Proba con alguna de estas opciones:');
+    showQuickOptions();
+  }
+}
+
+// ===== DISCLAIMER =====
+function checkDisclaimer() {
+  if (!localStorage.getItem('mc_disclaimer')) {
+    document.getElementById('disclaimerModal').classList.add('show');
+    document.getElementById('disclaimerCheck').addEventListener('change', function() {
+      document.getElementById('disclaimerBtn').disabled = !this.checked;
+      document.getElementById('disclaimerBtn').style.opacity = this.checked ? '1' : '.5';
+    });
+  }
+}
+
+function acceptDisclaimer() {
+  localStorage.setItem('mc_disclaimer', '1');
+  document.getElementById('disclaimerModal').classList.remove('show');
 }
 
 // Close modal on overlay click

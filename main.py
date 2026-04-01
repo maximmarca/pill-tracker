@@ -350,6 +350,154 @@ def get_shared_data(share_token: str):
     }
 
 # ============================================================
+# ROUTES — DISEASE INFO
+# ============================================================
+DISEASE_DB = {
+    "hipertension": {
+        "name": "Hipertension Arterial",
+        "description": "La hipertension arterial es una condicion cronica en la que la presion de la sangre contra las paredes de las arterias es consistentemente alta (mayor a 140/90 mmHg). Es conocida como 'el asesino silencioso' porque generalmente no presenta sintomas hasta que causa daño significativo.",
+        "organs": [
+            {"name": "Corazon", "icon": "heart", "description": "Supone una mayor resistencia para el corazon, pudiendo producir insuficiencia coronaria, angina de pecho, arritmias e infarto de miocardio. El corazon se agranda para compensar el esfuerzo extra."},
+            {"name": "Ojos", "icon": "eye", "description": "Daña las arterias de la retina (retinopatia hipertensiva), provocando alteraciones en la vision que pueden llegar a la ceguera si no se controla."},
+            {"name": "Riñones", "icon": "kidney", "description": "Causa rigidez en las arterias que suministran sangre a los riñones, pudiendo desembocar en insuficiencia renal cronica y necesidad de dialisis."},
+            {"name": "Cerebro", "icon": "brain", "description": "Cuando las arterias se vuelven rigidas y estrechas, puede provocar infartos cerebrales (ACV), hemorragias cerebrales y deterioro cognitivo."},
+            {"name": "Arterias", "icon": "artery", "description": "Endurece y estrecha las arterias (arteriosclerosis), reduciendo el flujo sanguineo a todos los organos y aumentando el riesgo de aneurismas."}
+        ],
+        "risk_factors": ["Sedentarismo", "Exceso de sal en la dieta", "Sobrepeso/obesidad", "Estres cronico", "Tabaquismo", "Consumo excesivo de alcohol", "Antecedentes familiares", "Edad avanzada"],
+        "lifestyle_tips": [
+            "Reducir el consumo de sal a menos de 5g/dia",
+            "Realizar 30 minutos de actividad fisica moderada al menos 5 dias por semana",
+            "Mantener un peso saludable (IMC entre 18.5 y 24.9)",
+            "Limitar el consumo de alcohol",
+            "No fumar",
+            "Controlar el estres con tecnicas de relajacion",
+            "Medir la presion arterial regularmente en casa"
+        ],
+        "related_meds": ["enalapril"]
+    },
+    "diabetes": {
+        "name": "Diabetes Tipo 2",
+        "description": "La diabetes tipo 2 es una enfermedad metabolica cronica en la que el cuerpo no produce suficiente insulina o no la utiliza eficientemente (resistencia a la insulina). Esto resulta en niveles elevados de glucosa (azucar) en sangre que, con el tiempo, dañan organos y vasos sanguineos.",
+        "organs": [
+            {"name": "Ojos", "icon": "eye", "description": "La retinopatia diabetica daña los vasos sanguineos de la retina. Es la principal causa de ceguera en adultos en edad laboral. Control glucemico reduce el riesgo significativamente."},
+            {"name": "Riñones", "icon": "kidney", "description": "La nefropatia diabetica afecta los filtros renales. La diabetes es la causa numero 1 de insuficiencia renal terminal. Control de glucosa y presion arterial son claves para prevenirla."},
+            {"name": "Nervios", "icon": "nerve", "description": "La neuropatia diabetica causa hormigueo, dolor, perdida de sensibilidad en pies y manos. Puede llevar a ulceras e infecciones que no se sienten. Revisar los pies diariamente."},
+            {"name": "Corazon", "icon": "heart", "description": "Duplica o triplica el riesgo de enfermedad cardiovascular. Los diabeticos tienen mayor riesgo de infarto, ACV y enfermedad arterial periferica."},
+            {"name": "Pies", "icon": "foot", "description": "El pie diabetico combina neuropatia + mala circulacion. Pequeñas heridas pueden convertirse en ulceras graves. Inspeccion diaria y cuidado podologico son esenciales."}
+        ],
+        "risk_factors": ["Sobrepeso/obesidad", "Sedentarismo", "Antecedentes familiares", "Edad mayor a 45 años", "Hipertension arterial", "Colesterol alto", "Diabetes gestacional previa"],
+        "lifestyle_tips": [
+            "Controlar la glucosa en sangre segun las indicaciones del medico",
+            "Seguir un plan de alimentacion equilibrado, bajo en azucares simples",
+            "Realizar actividad fisica regularmente (ayuda a controlar la glucosa)",
+            "Mantener un peso saludable",
+            "Revisar los pies diariamente buscando heridas o cambios",
+            "No saltear comidas ni medicacion",
+            "Realizar controles medicos periodicos (HbA1c cada 3-6 meses)"
+        ],
+        "related_meds": ["metformina"]
+    },
+    "hipotiroidismo": {
+        "name": "Hipotiroidismo",
+        "description": "El hipotiroidismo es una condicion en la que la glandula tiroides no produce suficientes hormonas tiroideas. Estas hormonas regulan el metabolismo, la energia, la temperatura corporal y el funcionamiento de casi todos los organos. Sin tratamiento, el metabolismo se ralentiza progresivamente.",
+        "organs": [
+            {"name": "Metabolismo", "icon": "metabolism", "description": "El metabolismo se ralentiza: aumento de peso inexplicable, fatiga persistente, intolerancia al frio, piel seca y cabello quebradizo."},
+            {"name": "Corazon", "icon": "heart", "description": "Puede causar bradicardia (ritmo cardiaco lento), aumento del colesterol y mayor riesgo cardiovascular a largo plazo."},
+            {"name": "Cerebro", "icon": "brain", "description": "Afecta el animo (depresion), la memoria y la concentracion. En casos severos puede causar mixedema, una emergencia medica."},
+            {"name": "Sistema reproductivo", "icon": "reproductive", "description": "Puede causar irregularidades menstruales, dificultad para concebir e infertilidad. En embarazo no tratado, riesgo para el desarrollo del bebe."}
+        ],
+        "risk_factors": ["Sexo femenino (8x mas frecuente)", "Edad mayor a 60 años", "Enfermedades autoinmunes", "Cirugia o radiacion de tiroides", "Antecedentes familiares", "Tratamiento con litio o amiodarona"],
+        "lifestyle_tips": [
+            "Tomar la levotiroxina SIEMPRE en ayunas, 30-60 min antes de comer",
+            "No tomar levotiroxina con cafe, leche, calcio ni hierro",
+            "Realizar controles de TSH cada 6-12 meses",
+            "No cambiar de marca de levotiroxina sin consultar al medico",
+            "Mantener una dieta equilibrada (no es necesario evitar yodo en la mayoria de casos)",
+            "Reportar sintomas nuevos al medico (pueden indicar ajuste de dosis)"
+        ],
+        "related_meds": ["levotiroxina"]
+    },
+    "gastritis": {
+        "name": "Gastritis / Reflujo Gastroesofagico",
+        "description": "La gastritis es la inflamacion del revestimiento del estomago. El reflujo gastroesofagico (ERGE) ocurre cuando el acido del estomago sube hacia el esofago. Ambas condiciones causan dolor, ardor y malestar digestivo. Son muy comunes y generalmente tratables.",
+        "organs": [
+            {"name": "Estomago", "icon": "stomach", "description": "Inflamacion de la mucosa gastrica que causa dolor, ardor, nauseas y sensacion de plenitud. Puede progresar a ulceras si no se trata."},
+            {"name": "Esofago", "icon": "esophagus", "description": "El reflujo de acido irrita el esofago causando ardor (pirosis). El reflujo cronico puede causar esofago de Barrett, una condicion pre-cancerosa."},
+            {"name": "Garganta", "icon": "throat", "description": "El acido puede llegar a la garganta causando tos cronica, ronquera, y sensacion de nudo en la garganta."}
+        ],
+        "risk_factors": ["Uso prolongado de antiinflamatorios (AINE)", "Infeccion por H. pylori", "Estres cronico", "Tabaquismo", "Consumo excesivo de alcohol", "Comidas picantes/grasas en exceso", "Obesidad"],
+        "lifestyle_tips": [
+            "Comer porciones pequeñas y frecuentes",
+            "No acostarse hasta 2-3 horas despues de comer",
+            "Elevar la cabecera de la cama 15cm",
+            "Evitar alimentos que empeoran los sintomas (cafe, alcohol, picante, chocolate, citricos)",
+            "No fumar",
+            "Mantener un peso saludable",
+            "Manejar el estres"
+        ],
+        "related_meds": ["omeprazol"]
+    },
+    "colesterol": {
+        "name": "Colesterol Alto (Dislipidemia)",
+        "description": "La dislipidemia es la elevacion del colesterol y/o trigliceridos en sangre. El colesterol LDL alto ('malo') se deposita en las paredes de las arterias formando placas que las estrechan (aterosclerosis), aumentando el riesgo de infarto y ACV. Generalmente no tiene sintomas.",
+        "organs": [
+            {"name": "Arterias", "icon": "artery", "description": "Las placas de colesterol estrechan las arterias (aterosclerosis), reduciendo el flujo sanguineo. Pueden romperse y causar coagulos que bloquean completamente la arteria."},
+            {"name": "Corazon", "icon": "heart", "description": "La enfermedad coronaria por colesterol es la causa numero 1 de muerte en el mundo. Las arterias coronarias estrechadas causan angina e infarto."},
+            {"name": "Cerebro", "icon": "brain", "description": "Si una placa bloquea una arteria cerebral, se produce un ACV (accidente cerebrovascular). El colesterol alto duplica el riesgo de ACV."}
+        ],
+        "risk_factors": ["Dieta alta en grasas saturadas", "Sedentarismo", "Obesidad", "Tabaquismo", "Diabetes", "Antecedentes familiares", "Edad (hombres >45, mujeres >55)"],
+        "lifestyle_tips": [
+            "Reducir grasas saturadas (carnes rojas, lacteos enteros, fritos)",
+            "Aumentar fibra (avena, frutas, verduras, legumbres)",
+            "Realizar 30 min de ejercicio aerobico 5 dias por semana",
+            "Mantener un peso saludable",
+            "No fumar (el tabaco baja el colesterol bueno HDL)",
+            "Controlar colesterol en sangre cada 6-12 meses"
+        ],
+        "related_meds": ["atorvastatina"]
+    },
+    "anemia": {
+        "name": "Anemia Ferropenica",
+        "description": "La anemia ferropenica ocurre cuando el cuerpo no tiene suficiente hierro para producir hemoglobina, la proteina que transporta oxigeno en los globulos rojos. Sin suficiente hemoglobina, los tejidos y organos no reciben el oxigeno que necesitan. Es la deficiencia nutricional mas comun en el mundo.",
+        "organs": [
+            {"name": "Sangre", "icon": "blood", "description": "Los globulos rojos son mas pequeños y palidos de lo normal (microciticos hipocromicos). La capacidad de transportar oxigeno se reduce significativamente."},
+            {"name": "Corazon", "icon": "heart", "description": "El corazon trabaja mas para compensar la falta de oxigeno: taquicardia, palpitaciones, y en casos severos insuficiencia cardiaca."},
+            {"name": "Cerebro", "icon": "brain", "description": "Fatiga extrema, dificultad para concentrarse, mareos, dolor de cabeza. En niños afecta el desarrollo cognitivo."},
+            {"name": "Piel y mucosas", "icon": "skin", "description": "Palidez en piel, uñas quebradizas y en forma de cuchara (coiloniquia), caida de cabello, lengua inflamada y fisuras en comisuras labiales."}
+        ],
+        "risk_factors": ["Menstruacion abundante", "Embarazo", "Dieta pobre en hierro", "Sangrado digestivo cronico", "Enfermedad celiaca", "Donacion frecuente de sangre", "Vegetarianismo/veganismo sin suplementacion"],
+        "lifestyle_tips": [
+            "Tomar el hierro con jugo de naranja o vitamina C (mejora la absorcion)",
+            "NO tomar hierro con leche, cafe, te ni calcio (inhiben absorcion)",
+            "Incluir carnes rojas, legumbres, espinaca y frutos secos en la dieta",
+            "Separar el hierro al menos 2 horas de otros medicamentos",
+            "Controlar hemoglobina y ferritina cada 3 meses durante el tratamiento",
+            "Las heces pueden tornarse oscuras — es normal con suplemento de hierro"
+        ],
+        "related_meds": ["hierro"]
+    }
+}
+
+@app.get("/api/diseases")
+def get_diseases(user=Depends(get_current_user)):
+    """Returns disease info relevant to user's medications."""
+    with get_db() as db:
+        meds = db.execute("SELECT name FROM medications WHERE user_id=? AND active=1", (user["id"],)).fetchall()
+
+    med_names = [m["name"].lower().strip() for m in meds]
+    result = []
+    seen = set()
+
+    for disease_key, disease in DISEASE_DB.items():
+        for related_med in disease.get("related_meds", []):
+            if related_med in med_names and disease_key not in seen:
+                seen.add(disease_key)
+                result.append(disease)
+
+    return result
+
+
+# ============================================================
 # ROUTES — TREATMENT INFO (medical data)
 # ============================================================
 TREATMENT_DB = {
